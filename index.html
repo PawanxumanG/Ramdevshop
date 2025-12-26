@@ -1,14 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>RamDev Shop - Sweets & Cakes</title>
     <!-- External Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <style>
@@ -74,17 +73,28 @@
       .search-container:focus-within {
         transform: translateY(-2px);
       }
+
+      .btn-primary {
+        background-color: #ea580c;
+        color: white;
+        font-weight: 800;
+        transition: all 0.2s;
+      }
+      .btn-primary:active {
+        transform: scale(0.95);
+        background-color: #c2410c;
+      }
     </style>
 
     <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "react/": "https://esm.sh/react@^19.2.3/"
-  }
-}
-</script>
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "react/": "https://esm.sh/react@^19.2.3/"
+      }
+    }
+    </script>
   </head>
   <body>
     <!-- Initial Loading Screen -->
@@ -97,7 +107,7 @@
     <div id="root"></div>
 
     <script type="text/babel" data-type="module">
-      import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+      import React, { useState, useMemo, useEffect, useRef } from 'react';
       import ReactDOM from 'react-dom/client';
 
       /** --- CONSTANTS --- **/
@@ -129,71 +139,50 @@
 
       const OnboardingView = ({ onComplete, initialData, isEditing }) => {
         const [form, setForm] = useState(initialData || { name: '', phone: '', address: '' });
-        const [locLoading, setLocLoading] = useState(false);
-
-        const detectLocation = () => {
-          setLocLoading(true);
-          navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-              const { latitude, longitude } = pos.coords;
-              setForm(prev => ({ ...prev, address: `${prev.address ? prev.address + ' ' : ''}(Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}) ` }));
-              setLocLoading(false);
-              alert("Location coordinates added! Please add your house/flat number manually.");
-            },
-            () => {
-              setLocLoading(false);
-              alert("Could not detect location. Please type your address manually.");
-            }
-          );
-        };
 
         const isValid = form.name.trim() && form.phone.length >= 10 && form.address.trim().length > 10;
 
         return (
           <div className="min-h-screen onboarding-gradient p-6 flex flex-col fade-in">
             <div className="mt-12 mb-8 text-center">
-              <div className="w-20 h-20 bg-orange-500 rounded-3xl flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-xl scale-up">
+              <div className="w-20 h-20 bg-orange-600 rounded-3xl flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-xl scale-up">
                 <i className={`fas ${isEditing ? 'fa-user-pen' : 'fa-store'}`}></i>
               </div>
-              <h2 className="text-3xl font-black text-gray-900 mb-2">{isEditing ? 'Edit Profile' : 'Welcome!'}</h2>
-              <p className="text-gray-500 text-sm">{isEditing ? 'Update your delivery details.' : 'Fill this once to start ordering fresh treats.'}</p>
+              <h2 className="text-3xl font-black text-gray-900 mb-2">{isEditing ? 'Profile Settings' : 'Welcome to RamDev'}</h2>
+              <p className="text-gray-500 text-sm">Please provide your exact address for delivery.</p>
             </div>
 
-            <div className="space-y-4 bg-white/50 p-4 rounded-[32px] border border-orange-100/50 backdrop-blur-sm shadow-sm">
+            <div className="space-y-5 bg-white/70 p-6 rounded-[32px] border border-orange-100 shadow-sm backdrop-blur-md">
               <div>
-                <label className="text-[10px] font-black text-orange-900/40 uppercase tracking-widest mb-1.5 ml-1 block">Full Name</label>
+                <label className="text-[10px] font-black text-orange-900/40 uppercase tracking-widest mb-2 ml-1 block">Your Full Name</label>
                 <input 
-                  className="w-full p-4 bg-white rounded-2xl border-2 border-orange-50 outline-none text-sm font-bold transition-all"
-                  placeholder="Enter your name"
+                  className="w-full p-4 bg-white rounded-2xl border-2 border-orange-50 outline-none text-sm font-bold focus:border-orange-500 transition-all"
+                  placeholder="e.g. Rahul Kumar"
                   value={form.name}
                   onChange={e => setForm({...form, name: e.target.value})}
                 />
               </div>
               <div>
-                <label className="text-[10px] font-black text-orange-900/40 uppercase tracking-widest mb-1.5 ml-1 block">WhatsApp Mobile</label>
+                <label className="text-[10px] font-black text-orange-900/40 uppercase tracking-widest mb-2 ml-1 block">WhatsApp Mobile</label>
                 <input 
-                  className="w-full p-4 bg-white rounded-2xl border-2 border-orange-50 outline-none text-sm font-bold transition-all"
-                  placeholder="10 digit number"
+                  className="w-full p-4 bg-white rounded-2xl border-2 border-orange-50 outline-none text-sm font-bold focus:border-orange-500 transition-all"
+                  placeholder="10 digit mobile number"
                   type="tel"
+                  maxLength="10"
                   value={form.phone}
                   onChange={e => setForm({...form, phone: e.target.value.replace(/\D/g, '')})}
                 />
               </div>
               <div>
-                <div className="flex justify-between items-center mb-1.5 px-1">
-                  <label className="text-[10px] font-black text-orange-900/40 uppercase tracking-widest">Delivery Address</label>
-                  <button onClick={detectLocation} className="text-[9px] font-black text-orange-600 uppercase flex items-center gap-1">
-                    <i className={`fas ${locLoading ? 'fa-spinner fa-spin' : 'fa-location-dot'}`}></i>
-                    {locLoading ? 'Detecting...' : 'Detect Me'}
-                  </button>
-                </div>
+                <label className="text-[10px] font-black text-orange-900/40 uppercase tracking-widest mb-2 ml-1 block">Full Delivery Address (Manual)</label>
                 <textarea 
-                  className="w-full p-4 bg-white rounded-2xl border-2 border-orange-50 outline-none text-sm font-bold transition-all resize-none"
-                  placeholder="Building, Flat, Area, Landmark..."
-                  rows="3"
+                  className="w-full p-4 bg-white rounded-2xl border-2 border-orange-50 outline-none text-sm font-bold focus:border-orange-500 transition-all resize-none"
+                  placeholder="House No, Flat Name, Street, Landmark, Area, City..."
+                  rows="4"
                   value={form.address}
                   onChange={e => setForm({...form, address: e.target.value})}
                 />
+                <p className="text-[9px] text-gray-400 mt-2 px-1 font-medium">* Exact address ensures faster delivery.</p>
               </div>
             </div>
 
@@ -203,12 +192,12 @@
                 onClick={() => onComplete(form)}
                 className={`w-full py-5 rounded-2xl font-black shadow-xl transition-all flex items-center justify-center gap-3 ${isValid ? 'bg-orange-600 text-white active:scale-95' : 'bg-gray-200 text-gray-400'}`}
               >
-                {isEditing ? 'SAVE CHANGES' : 'START SHOPPING'}
+                {isEditing ? 'SAVE PROFILE' : 'START BROWSING'}
                 <i className="fas fa-chevron-right text-xs"></i>
               </button>
               {isEditing && (
                 <button onClick={() => onComplete(null)} className="w-full py-4 text-gray-400 font-bold text-xs uppercase tracking-widest">
-                  Cancel
+                  Back to Menu
                 </button>
               )}
             </div>
@@ -216,149 +205,83 @@
         );
       };
 
-      const Header = ({ profile, cartCount, onOpenCart, onOpenOrders, onEditProfile }) => (
-        <header className="fixed top-0 left-0 right-0 max-w-md mx-auto z-50 bg-white/95 backdrop-blur-md px-4 py-3 border-b border-orange-50 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button onClick={onEditProfile} className="w-9 h-9 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 active:scale-90 transition-transform shadow-inner">
-              <i className="fas fa-user text-sm"></i>
+      const OrderHistoryView = ({ orders, onBack }) => (
+        <div className="min-h-screen bg-white p-6 pt-16 fade-in flex flex-col">
+          <div className="flex items-center gap-4 mb-8">
+            <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 active:scale-90 transition-transform">
+              <i className="fas fa-arrow-left"></i>
             </button>
-            <div className="flex flex-col">
-              <h1 className="text-sm font-black text-gray-900 leading-none">{SHOP_NAME}</h1>
-              <p className="text-[10px] font-bold text-orange-600 mt-0.5">Hi, {profile.name.split(' ')[0]}</p>
-            </div>
+            <h2 className="text-2xl font-black text-gray-900">Order History</h2>
           </div>
-          <div className="flex items-center gap-1">
-            <button onClick={onOpenOrders} className="w-10 h-10 flex items-center justify-center text-gray-400 active:scale-90 transition-transform">
-              <i className="fas fa-receipt text-lg"></i>
-            </button>
-            <button onClick={onOpenCart} className="relative w-10 h-10 flex items-center justify-center text-gray-700 active:scale-90 transition-transform">
-              <i className="fas fa-shopping-basket text-xl"></i>
-              {cartCount > 0 && <span className="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">{cartCount}</span>}
-            </button>
-          </div>
-        </header>
-      );
 
-      const ProductCard = ({ product, onAdd, onClick }) => (
-        <article onClick={() => onClick(product)} className="bg-white rounded-2xl overflow-hidden card-shadow border border-orange-50 flex flex-col h-full active:scale-[0.98] transition-all cursor-pointer">
-          <div className="relative h-32">
-            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-            <div className="absolute top-2 right-2">
-              <span className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg text-[8px] font-black text-orange-800 shadow-sm uppercase">{product.category}</span>
-            </div>
-          </div>
-          <div className="p-3 flex flex-col flex-1">
-            <h3 className="text-xs font-black text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
-            <p className="text-[10px] text-gray-500 line-clamp-2 mb-3 leading-tight flex-1">{product.description}</p>
-            <div className="flex items-center justify-between mt-auto">
-              <span className="text-sm font-black text-orange-600">₹{product.price}</span>
-              <button 
-                onClick={(e) => { e.stopPropagation(); onAdd(product); }}
-                className="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center active:bg-orange-600 active:text-white transition-colors"
-              >
-                <i className="fas fa-plus text-[10px]"></i>
-              </button>
-            </div>
-          </div>
-        </article>
-      );
-
-      const CheckoutView = ({ cart, subtotal, platformFee, deliveryCharge, grandTotal, profile, onSubmit, onBack }) => {
-        const [payment, setPayment] = useState('cod');
-        const [form, setForm] = useState({ ...profile });
-        
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(SHOP_NAME)}&am=${grandTotal}&cu=INR`)}`;
-
-        return (
-          <div className="min-h-screen bg-white p-6 pt-16 fade-in flex flex-col">
-            <div className="flex items-center gap-4 mb-8">
-              <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50"><i className="fas fa-arrow-left"></i></button>
-              <h2 className="text-2xl font-black text-gray-900">Checkout</h2>
-            </div>
-
-            <div className="space-y-6 flex-1">
-              <div className="space-y-4">
-                <div className="bg-orange-50/50 p-4 rounded-3xl border border-orange-100">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xs font-black text-orange-900 uppercase tracking-widest">Delivery Info</h3>
-                    <p className="text-[9px] font-black text-orange-400 bg-white px-2 py-1 rounded-full">AUTO-FILLED</p>
-                  </div>
-                  <div className="space-y-3">
-                    <input className="w-full p-3 bg-white rounded-xl border-none text-xs font-bold focus:ring-2 focus:ring-orange-500" placeholder="Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-                    <input className="w-full p-3 bg-white rounded-xl border-none text-xs font-bold focus:ring-2 focus:ring-orange-500" placeholder="Phone" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
-                    <textarea className="w-full p-3 bg-white rounded-xl border-none text-xs font-bold focus:ring-2 focus:ring-orange-500" placeholder="Address" rows="2" value={form.address} onChange={e => setForm({...form, address: e.target.value})} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button onClick={() => setPayment('qr')} className={`p-4 rounded-3xl border-2 transition-all flex flex-col items-center gap-2 ${payment === 'qr' ? 'border-orange-500 bg-orange-50' : 'border-gray-50 bg-gray-50 text-gray-400'}`}>
-                    <i className="fas fa-qrcode text-lg"></i>
-                    <span className="text-[10px] font-black uppercase tracking-tighter">UPI / SCAN</span>
-                  </button>
-                  <button onClick={() => setPayment('cod')} className={`p-4 rounded-3xl border-2 transition-all flex flex-col items-center gap-2 ${payment === 'cod' ? 'border-orange-500 bg-orange-50' : 'border-transparent bg-gray-50 text-gray-400'}`}>
-                    <i className="fas fa-truck-fast text-lg"></i>
-                    <span className="text-[10px] font-black uppercase tracking-tighter">CASH ON DEL.</span>
-                  </button>
-                </div>
-
-                {payment === 'qr' && (
-                  <div className="bg-white p-6 rounded-[40px] border-2 border-dashed border-orange-200 text-center shadow-lg animate-fadeIn">
-                    <p className="text-[10px] font-black text-orange-900 mb-4 uppercase tracking-widest">Scan to pay ₹{grandTotal}</p>
-                    <img src={qrUrl} alt="UPI QR" className="mx-auto w-40 h-40 mb-3 rounded-2xl shadow-md border-4 border-white" />
-                    <p className="text-[9px] text-gray-400 font-bold uppercase">Pre-filled with amount</p>
-                  </div>
-                )}
+          {orders.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-10">
+              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-6">
+                <i className="fas fa-receipt text-3xl"></i>
               </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">No orders yet</h3>
+              <p className="text-gray-400 text-sm">Treat yourself to some sweets to see your orders here!</p>
             </div>
-
-            <div className="mt-10 mb-6 bg-gray-50 p-6 rounded-[32px] space-y-2 border border-gray-100">
-               <div className="flex justify-between text-[11px]"><span className="text-gray-400 font-bold">Items Total</span><span className="font-black text-gray-700">₹{subtotal}</span></div>
-               <div className="flex justify-between text-[11px]"><span className="text-gray-400 font-bold">Platform Fee</span><span className="font-black text-gray-700">₹{platformFee}</span></div>
-               <div className="flex justify-between text-[11px]"><span className="text-gray-400 font-bold">Delivery Charge</span><span className="font-black text-gray-700">{deliveryCharge === 0 ? 'FREE' : '₹'+deliveryCharge}</span></div>
-               <div className="pt-3 border-t flex justify-between items-center"><span className="font-black text-gray-900">Final Total</span><span className="text-xl font-black text-orange-600">₹{grandTotal}</span></div>
+          ) : (
+            <div className="space-y-4 overflow-y-auto no-scrollbar pb-10">
+              {orders.map(order => (
+                <div key={order.id} className="p-5 rounded-[28px] bg-orange-50/30 border border-orange-100/50">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <p className="text-[10px] font-black text-orange-600 uppercase mb-1">Order #{order.id}</p>
+                      <p className="text-xs font-bold text-gray-900">{new Date(order.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
+                    <span className="bg-green-100 text-green-700 text-[9px] font-black px-3 py-1 rounded-full">SENT</span>
+                  </div>
+                  <div className="space-y-1 mb-4">
+                    {order.items.map((item, idx) => (
+                      <p key={idx} className="text-[11px] text-gray-500 font-medium">• {item.name} x {item.quantity}</p>
+                    ))}
+                  </div>
+                  <div className="flex justify-between items-center pt-3 border-t border-orange-100">
+                    <span className="text-[10px] font-black text-gray-400 uppercase">Paid via {order.paymentMethod.toUpperCase()}</span>
+                    <span className="text-sm font-black text-orange-700">₹{order.grandTotal}</span>
+                  </div>
+                </div>
+              ))}
             </div>
+          )}
+        </div>
+      );
 
-            <button onClick={() => onSubmit(form, payment)} className="w-full bg-green-600 text-white py-5 rounded-2xl font-black shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform">
-              <i className="fab fa-whatsapp text-2xl"></i> COMPLETE ON WHATSAPP
-            </button>
-          </div>
-        );
-      };
-
-      /** --- MAIN APP --- **/
       const App = () => {
-        const [view, setView] = useState('loading');
+        const [view, setView] = useState('loading'); // loading, onboarding, catalog, checkout, history, edit_profile
         const [profile, setProfile] = useState(null);
         const [cart, setCart] = useState([]);
         const [category, setCategory] = useState('All');
         const [searchQuery, setSearchQuery] = useState('');
-        const [pastOrders, setPastOrders] = useState([]);
-        const [selectedProduct, setSelectedProduct] = useState(null);
+        const [orders, setOrders] = useState([]);
 
-        // Computed
-        const subtotal = useMemo(() => cart.reduce((a, b) => a + b.price * b.quantity, 0), [cart]);
+        // Calculations
+        const subtotal = cart.reduce((a, b) => a + b.price * b.quantity, 0);
         const platformFee = PLATFORM_FEE;
         const deliveryCharge = (subtotal > 0 && subtotal < FREE_DELIVERY_THRESHOLD) ? DELIVERY_CHARGE : 0;
         const grandTotal = subtotal > 0 ? subtotal + platformFee + deliveryCharge : 0;
         const cartCount = cart.reduce((a, b) => a + b.quantity, 0);
 
         useEffect(() => {
-          const storedProfile = localStorage.getItem('ramdev_user_profile');
-          const storedOrders = localStorage.getItem('ramdev_past_orders');
+          const storedProfile = localStorage.getItem('ramdev_profile');
+          const storedOrders = localStorage.getItem('ramdev_orders');
+          
           if (storedProfile) setProfile(JSON.parse(storedProfile));
-          if (storedOrders) setPastOrders(JSON.parse(storedOrders));
+          if (storedOrders) setOrders(JSON.parse(storedOrders));
           
           setTimeout(() => {
             const loader = document.getElementById('loader');
             if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
             setView(storedProfile ? 'catalog' : 'onboarding');
-          }, 1200);
+          }, 1500);
         }, []);
 
-        const handleSaveProfile = (data) => {
-          if (!data) { setView('catalog'); return; } // Cancel
+        const saveProfile = (data) => {
+          if (!data) { setView('catalog'); return; }
           setProfile(data);
-          localStorage.setItem('ramdev_user_profile', JSON.stringify(data));
+          localStorage.setItem('ramdev_profile', JSON.stringify(data));
           setView('catalog');
         };
 
@@ -370,33 +293,44 @@
           });
         };
 
-        const handleFinalOrder = (details, paymentMethod) => {
-          // Check if profile should be updated permanently
-          if (details.address !== profile.address || details.phone !== profile.phone) {
-            setProfile(details);
-            localStorage.setItem('ramdev_user_profile', JSON.stringify(details));
-          }
+        const updateCartQty = (id, delta) => {
+          setCart(prev => prev.map(item => {
+            if (item.id === id) {
+              const newQty = Math.max(0, item.quantity + delta);
+              return { ...item, quantity: newQty };
+            }
+            return item;
+          }).filter(item => item.quantity > 0));
+        };
 
-          const orderId = 'RD' + Date.now().toString().slice(-6);
-          const newOrder = { id: orderId, date: new Date().toISOString(), items: [...cart], grandTotal, details, paymentMethod };
-          
-          const updatedOrders = [newOrder, ...pastOrders];
-          setPastOrders(updatedOrders);
-          localStorage.setItem('ramdev_past_orders', JSON.stringify(updatedOrders));
+        const placeOrder = (paymentMethod) => {
+          const orderId = 'RD' + Math.floor(100000 + Math.random() * 900000);
+          const newOrder = {
+            id: orderId,
+            date: new Date().toISOString(),
+            items: [...cart],
+            grandTotal,
+            paymentMethod
+          };
 
-          // WhatsApp Message
+          const updatedOrders = [newOrder, ...orders];
+          setOrders(updatedOrders);
+          localStorage.setItem('ramdev_orders', JSON.stringify(updatedOrders));
+
+          // WhatsApp formatting
           const itemsTxt = cart.map(i => `• *${i.name}* (x${i.quantity}) - ₹${i.price * i.quantity}`).join('\n');
-          const msg = `🛍️ *ORDER: #${orderId}*\n\n` +
-                      `👤 *Name:* ${details.name}\n` +
-                      `📍 *Address:* ${details.address}\n` +
-                      `💳 *Payment:* ${paymentMethod === 'qr' ? 'UPI/Online' : 'Cash on Delivery'}\n\n` +
+          const msg = `🛍️ *NEW ORDER: #${orderId}*\n\n` +
+                      `👤 *Customer:* ${profile.name}\n` +
+                      `📞 *Phone:* ${profile.phone}\n` +
+                      `📍 *Address:* ${profile.address}\n\n` +
+                      `💳 *Payment:* ${paymentMethod.toUpperCase()}\n\n` +
                       `🍰 *Items:*\n${itemsTxt}\n\n` +
-                      `⭐ *TOTAL: ₹${grandTotal}*`;
+                      `⭐ *GRAND TOTAL: ₹${grandTotal}*`;
           
           openWhatsApp(msg);
           setCart([]);
           setView('catalog');
-          alert("Order confirmation sent to WhatsApp!");
+          alert("Order details sent! Redirecting to WhatsApp...");
         };
 
         const filteredProducts = PRODUCTS_LIST.filter(p => {
@@ -406,60 +340,141 @@
         });
 
         if (view === 'loading') return null;
-        if (view === 'onboarding') return <OnboardingView onComplete={handleSaveProfile} />;
-        if (view === 'edit_profile') return <OnboardingView initialData={profile} onComplete={handleSaveProfile} isEditing={true} />;
-        if (view === 'checkout') return <CheckoutView cart={cart} subtotal={subtotal} platformFee={platformFee} deliveryCharge={deliveryCharge} grandTotal={grandTotal} profile={profile} onBack={() => setView('catalog')} onSubmit={handleFinalOrder} />;
+        if (view === 'onboarding') return <OnboardingView onComplete={saveProfile} />;
+        if (view === 'edit_profile') return <OnboardingView initialData={profile} onComplete={saveProfile} isEditing={true} />;
+        if (view === 'history') return <OrderHistoryView orders={orders} onBack={() => setView('catalog')} />;
 
         return (
-          <div className="min-h-screen bg-[#fffaf0] max-w-md mx-auto relative flex flex-col">
-            <Header profile={profile} cartCount={cartCount} onOpenCart={() => setView('catalog')} onOpenOrders={() => setView('catalog')} onEditProfile={() => setView('edit_profile')} />
-            
-            <main className="flex-1 pt-16 pb-32 px-4 fade-in">
+          <div className="min-h-screen max-w-md mx-auto relative flex flex-col bg-[#fffaf0]">
+            {/* Main Header */}
+            <header className="fixed top-0 left-0 right-0 max-w-md mx-auto z-50 bg-white/95 backdrop-blur-md px-4 py-3 border-b border-orange-50 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-2">
+                <button onClick={() => setView('edit_profile')} className="w-9 h-9 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 active:scale-90 transition-transform">
+                  <i className="fas fa-user text-sm"></i>
+                </button>
+                <div className="flex flex-col">
+                  <h1 className="text-sm font-black text-gray-900 leading-none">{SHOP_NAME}</h1>
+                  <p className="text-[10px] font-bold text-orange-600 mt-0.5 tracking-tight">Pure Sweets, Pure Joy</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <button onClick={() => setView('history')} className="w-10 h-10 flex items-center justify-center text-gray-400 active:scale-90 transition-transform">
+                  <i className="fas fa-receipt text-lg"></i>
+                </button>
+              </div>
+            </header>
+
+            <main className="flex-1 pt-16 pb-40 px-4 fade-in">
+              {/* Promo Banner */}
+              <div className="mt-4 mb-6 bg-orange-600 rounded-[32px] p-6 text-white relative overflow-hidden shadow-xl shadow-orange-100">
+                <div className="relative z-10">
+                  <h2 className="text-2xl font-black mb-1">Special Weekend Deal</h2>
+                  <p className="text-xs font-bold text-white/80">Get FREE delivery on all orders above ₹500!</p>
+                </div>
+                <i className="fas fa-cookie-bite absolute -bottom-4 -right-4 text-7xl text-white/10 rotate-12"></i>
+              </div>
+
               {/* Search Bar */}
-              <div className="mt-4 mb-6 search-container bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm border border-orange-50">
+              <div className="mb-6 search-container bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm border border-orange-50">
                 <i className="fas fa-search text-orange-200 mr-3"></i>
                 <input 
                   className="flex-1 bg-transparent border-none outline-none text-sm font-bold placeholder:text-gray-300"
-                  placeholder="Search sweets, cakes..."
+                  placeholder="Search for Motichoor, Cakes..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                 />
               </div>
 
-              {/* Categories */}
+              {/* Category Chips */}
               <div className="flex gap-2 overflow-x-auto no-scrollbar pb-6">
                 {['All', 'Sweets', 'Cakes', 'Snacks'].map(cat => (
-                  <button key={cat} onClick={() => setCategory(cat)} className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${category === cat ? 'bg-orange-600 text-white shadow-lg shadow-orange-100' : 'bg-white text-orange-900 border border-orange-100'}`}>
+                  <button key={cat} onClick={() => setCategory(cat)} className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${category === cat ? 'bg-orange-600 text-white shadow-lg' : 'bg-white text-orange-900 border border-orange-100'}`}>
                     {cat}
                   </button>
                 ))}
               </div>
 
-              {/* Product Grid */}
-              {filteredProducts.length > 0 ? (
-                <div className="product-grid">
-                  {filteredProducts.map(p => <ProductCard key={p.id} product={p} onAdd={addToCart} onClick={setSelectedProduct} />)}
-                </div>
-              ) : (
-                <div className="py-20 text-center">
-                  <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-200">
-                    <i className="fas fa-search"></i>
-                  </div>
-                  <p className="text-gray-400 text-sm font-bold">No items found for "{searchQuery}"</p>
-                </div>
-              )}
+              {/* Grid */}
+              <div className="product-grid">
+                {filteredProducts.map(p => (
+                  <article key={p.id} className="bg-white rounded-[24px] overflow-hidden card-shadow border border-orange-50 flex flex-col h-full active:scale-[0.98] transition-all">
+                    <div className="relative h-36">
+                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                      <div className="absolute top-2 right-2">
+                        <span className="bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg text-[8px] font-black text-orange-800 shadow-sm uppercase">{p.category}</span>
+                      </div>
+                    </div>
+                    <div className="p-4 flex flex-col flex-1">
+                      <h3 className="text-xs font-black text-gray-900 mb-1 leading-tight">{p.name}</h3>
+                      <p className="text-[10px] text-gray-400 line-clamp-2 mb-4 leading-normal flex-1">{p.description}</p>
+                      <div className="flex items-center justify-between mt-auto">
+                        <span className="text-sm font-black text-orange-600">₹{p.price}</span>
+                        <button 
+                          onClick={() => addToCart(p)}
+                          className="w-8 h-8 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center active:bg-orange-600 active:text-white transition-all shadow-sm"
+                        >
+                          <i className="fas fa-plus text-[10px]"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </main>
 
-            {/* Bottom Floating Bar */}
+            {/* Floating Cart Overlay */}
             {cartCount > 0 && (
-              <div className="fixed bottom-6 left-4 right-4 z-40 max-w-[calc(448px-2rem)] mx-auto animate-fadeIn">
-                <button onClick={() => setView('checkout')} className="w-full bg-orange-600 text-white font-black py-4 rounded-2xl shadow-2xl flex justify-between px-6 items-center border-4 border-white/20 active:scale-[0.97] transition-transform">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-white/20 w-8 h-8 rounded-lg flex items-center justify-center text-xs">{cartCount}</div>
-                    <span className="text-[10px] uppercase tracking-widest">Items in Bag</span>
+              <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-[60] p-4 animate-fadeIn">
+                <div className="bg-white rounded-[32px] shadow-[0_-20px_50px_rgba(0,0,0,0.1)] border border-orange-100 p-6">
+                  {/* Miniature Item List */}
+                  <div className="max-h-32 overflow-y-auto no-scrollbar mb-4 space-y-3">
+                    {cart.map(item => (
+                      <div key={item.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <img src={item.image} className="w-10 h-10 rounded-lg object-cover" />
+                          <div>
+                            <p className="text-[11px] font-black text-gray-900 leading-none">{item.name}</p>
+                            <p className="text-[10px] text-orange-600 font-bold mt-1">₹{item.price * item.quantity}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 bg-gray-50 px-2 py-1 rounded-lg">
+                          <button onClick={() => updateCartQty(item.id, -1)} className="w-6 h-6 flex items-center justify-center text-xs text-gray-400"><i className="fas fa-minus"></i></button>
+                          <span className="text-xs font-black text-gray-900">{item.quantity}</span>
+                          <button onClick={() => updateCartQty(item.id, 1)} className="w-6 h-6 flex items-center justify-center text-xs text-orange-600"><i className="fas fa-plus"></i></button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <span className="text-sm font-black">₹{grandTotal} <i className="fas fa-arrow-right ml-1 text-xs"></i></span>
-                </button>
+
+                  {/* Summary */}
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-100 mb-6">
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Grand Total</p>
+                      <p className="text-2xl font-black text-gray-900">₹{grandTotal}</p>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-[9px] font-bold text-gray-400">Items: ₹{subtotal}</p>
+                       <p className="text-[9px] font-bold text-green-600">Delivery: {deliveryCharge === 0 ? 'FREE' : '₹'+deliveryCharge}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                     <button 
+                      onClick={() => placeOrder('cod')}
+                      className="bg-gray-100 text-gray-900 py-4 rounded-2xl font-black text-[11px] uppercase tracking-wider flex flex-col items-center gap-1 active:scale-95 transition-transform"
+                    >
+                      <i className="fas fa-truck text-lg"></i>
+                      Cash on Del.
+                    </button>
+                    <button 
+                      onClick={() => placeOrder('upi')}
+                      className="bg-orange-600 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-wider flex flex-col items-center gap-1 shadow-lg shadow-orange-200 active:scale-95 transition-transform"
+                    >
+                      <i className="fas fa-qrcode text-lg"></i>
+                      Pay via UPI
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
