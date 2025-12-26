@@ -4,59 +4,81 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RamDev Shop</title>
+    <title>RamDev Shop - Sweets & Cakes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Load Babel to support TSX in the browser -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
       body {
         font-family: 'Inter', sans-serif;
         background-color: #fffaf0;
+        margin: 0;
+        padding: 0;
       }
-      h1, h2, h3 {
-        font-family: 'Playfair Display', serif;
+      #loader {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #fffaf0;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
       }
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 4px;
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #fed7aa;
+        border-top: 5px solid #ea580c;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
       }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f1f1;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #ed8936;
-        border-radius: 10px;
-      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      
+      h1, h2, h3 { font-family: 'Playfair Display', serif; }
+      .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #ed8936; border-radius: 10px; }
       @keyframes itemRemove {
-        0% { transform: scale(1); opacity: 1; height: auto; margin-bottom: 1.5rem; }
-        100% { transform: scale(0.9); opacity: 0; height: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; }
+        0% { transform: scale(1); opacity: 1; height: auto; }
+        100% { transform: scale(0.9); opacity: 0; height: 0; margin: 0; padding: 0; overflow: hidden; }
       }
-      .animate-itemRemove {
-        animation: itemRemove 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-      }
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
+      .animate-itemRemove { animation: itemRemove 0.3s forwards; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-  <script type="importmap">
+    <script type="importmap">
 {
   "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react-dom/client": "https://esm.sh/react-dom@^19.2.3/client"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
   }
 }
 </script>
-</head>
+  </head>
   <body>
+    <div id="loader">
+      <div class="spinner"></div>
+      <p style="margin-top: 20px; font-weight: 700; color: #9a3412; font-family: 'Playfair Display', serif; font-size: 20px;">RamDev Shop</p>
+      <p style="margin-top: 8px; font-size: 12px; color: #c2410c; opacity: 0.7;">Preparing your delicious menu...</p>
+    </div>
     <div id="root"></div>
-    <!-- Changed to type="text/babel" and relative path for GitHub Pages -->
     <script type="text/babel" data-type="module" src="index.tsx"></script>
+    <script>
+      // Hide loader once React is mounted
+      window.addEventListener('load', () => {
+        const checkReact = setInterval(() => {
+          if (document.querySelector('#root > div')) {
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').remove(), 500);
+            clearInterval(checkReact);
+          }
+        }, 100);
+      });
+    </script>
   </body>
 </html>
