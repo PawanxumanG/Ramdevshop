@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -74,23 +75,6 @@
         mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
         -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
       }
-
-      .admin-input {
-        width: 100%;
-        padding: 1rem;
-        background-color: #f9fafb;
-        border-radius: 1rem;
-        border: 2px solid transparent;
-        transition: all 0.2s;
-        font-size: 0.875rem;
-        font-weight: 500;
-        outline: none;
-      }
-      .admin-input:focus {
-        border-color: #ea580c;
-        background-color: #fff;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      }
     </style>
 
     <script type="importmap">
@@ -102,7 +86,8 @@
   }
 }
 </script>
-  </head>
+  <link rel="stylesheet" href="/index.css">
+</head>
   <body>
     <!-- Initial Loading Screen -->
     <div id="loader" role="status" aria-label="Loading application">
@@ -114,225 +99,77 @@
     <div id="root"></div>
 
     <script type="text/babel" data-type="module">
-      import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+      import React, { useState, useMemo, useCallback, useEffect } from 'react';
       import ReactDOM from 'react-dom/client';
 
       /** --- CONSTANTS --- **/
       const SHOP_NAME = "RamDev Shop";
-      const OWNER_WHATSAPP = "919867637326"; 
+      const OWNER_WHATSAPP = "919867637326"; // Ensure country code is present without '+'
       const UPI_ID = "pawanponnam-1@okicici";
       const PLATFORM_FEE = 1;
       const FREE_DELIVERY_THRESHOLD = 100;
       const DELIVERY_CHARGE = 10;
-      
-      const INITIAL_PRODUCTS = [
-        { id: '1', name: 'Kaju Katli (250g)', description: 'Premium cashew fudge made with real silver leaf.', price: 50, category: 'Sweets', image: 'kajukatli.jpg' },
-        { id: '2', name: 'Ladoo (250g)', description: 'Soft and delicious laddoos prepared with fresh ingredients.', price: 50, category: 'Sweets', image: 'ladoo.jpg' },
-        { id: '3', name: 'Motichoor Ladoo (250g)', description: 'Traditional fine pearl gram flour balls cooked in pure ghee.', price: 50, category: 'Sweets', image: 'motichoor.jpg' },
-        { id: '4', name: 'Peda (250g)', description: 'Classic milk peda with authentic flavor and smooth texture.', price: 50, category: 'Sweets', image: 'peda.jpg' }
-      ];
+
+      const PRODUCTS = [
+  {
+    id: '1',
+    name: 'Special Kaju Katli',
+    description: 'Premium cashew sweet made with pure ingredients and traditional taste.',
+    price: 450,
+    category: 'Sweets',
+    image: 'kajukatli.jpg'
+  },
+  {
+    id: '2',
+    name: 'Ladoo',
+    description: 'Soft and delicious laddoos prepared with fresh ingredients.',
+    price: 300,
+    category: 'Sweets',
+    image: 'ladoo.jpg'
+  },
+  {
+    id: '3',
+    name: 'Motichoor Ladoo',
+    description: 'Fine motichoor pearls cooked in pure ghee for rich taste.',
+    price: 320,
+    category: 'Sweets',
+    image: 'motichoor.jpg'
+  },
+  {
+    id: '4',
+    name: 'Peda',
+    description: 'Classic milk peda with authentic flavor and smooth texture.',
+    price: 280,
+    category: 'Sweets',
+    image: 'peda.jpg'
+  }
+];
 
       /** --- UTILITIES --- **/
       const openWhatsApp = (message) => {
+        // Use api.whatsapp.com instead of wa.me for better direct intent handling on Android
+        // And use window.location.href to avoid being blocked as a popup
         const url = `https://api.whatsapp.com/send?phone=${OWNER_WHATSAPP}&text=${encodeURIComponent(message)}`;
         window.location.href = url;
       };
 
       /** --- COMPONENTS --- **/
 
-      const AdminPanelView = ({ products, onUpdateProducts, onBack }) => {
-        const [editingProduct, setEditingProduct] = useState(null);
-        const [showAddForm, setShowAddForm] = useState(false);
-        const [form, setForm] = useState({ name: '', price: '', category: 'Sweets', image: '', description: '' });
-
-        const resetForm = () => {
-          setForm({ name: '', price: '', category: 'Sweets', image: '', description: '' });
-          setEditingProduct(null);
-          setShowAddForm(false);
-        };
-
-        const handleSave = () => {
-          if (!form.name || !form.price || !form.image) return alert("Please fill Name, Price and Image URL");
-          
-          let updated;
-          if (editingProduct) {
-            updated = products.map(p => p.id === editingProduct.id ? { ...p, ...form, price: Number(form.price) } : p);
-          } else {
-            const newProduct = { ...form, id: Date.now().toString(), price: Number(form.price) };
-            updated = [...products, newProduct];
-          }
-          
-          onUpdateProducts(updated);
-          resetForm();
-        };
-
-        const handleDelete = (id) => {
-          if (confirm("Delete this product?")) {
-            onUpdateProducts(products.filter(p => p.id !== id));
-          }
-        };
-
-        const startEdit = (p) => {
-          setEditingProduct(p);
-          setForm({ name: p.name, price: p.price, category: p.category, image: p.image, description: p.description });
-          setShowAddForm(true);
-        };
-
-        const copyJson = () => {
-          const json = JSON.stringify(products, null, 2);
-          navigator.clipboard.writeText(json).then(() => alert("Products JSON copied to clipboard!"));
-        };
-
-        return (
-          <div className="min-h-screen bg-white p-6 pt-16 fade-in">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-4">
-                <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50"><i className="fas fa-arrow-left"></i></button>
-                <h2 className="text-2xl font-black text-gray-900">Admin Panel</h2>
-              </div>
-              <button onClick={copyJson} className="w-10 h-10 flex items-center justify-center rounded-full bg-orange-50 text-orange-600" title="Export products.json"><i className="fas fa-file-export"></i></button>
-            </div>
-
-            {showAddForm ? (
-              <div className="space-y-4 bg-gray-50 p-6 rounded-[32px] border border-gray-100 mb-8">
-                <h3 className="font-black text-lg mb-4">{editingProduct ? 'Edit Product' : 'Add New Product'}</h3>
-                <input className="admin-input" placeholder="Product Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
-                <div className="grid grid-cols-2 gap-3">
-                  <input className="admin-input" placeholder="Price (₹)" type="number" value={form.price} onChange={e => setForm({...form, price: e.target.value})} />
-                  <select className="admin-input" value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
-                    <option value="Sweets">Sweets</option>
-                    <option value="Cakes">Cakes</option>
-                    <option value="Snacks">Snacks</option>
-                  </select>
-                </div>
-                <input className="admin-input" placeholder="Image Name (e.g. sweet.jpg)" value={form.image} onChange={e => setForm({...form, image: e.target.value})} />
-                <textarea className="admin-input" placeholder="Description" rows="3" value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
-                
-                <div className="grid grid-cols-2 gap-3 mt-4">
-                  <button onClick={resetForm} className="py-4 bg-white text-gray-400 font-bold rounded-2xl">Cancel</button>
-                  <button onClick={handleSave} className="py-4 bg-orange-600 text-white font-black rounded-2xl shadow-lg shadow-orange-100">Save Product</button>
-                </div>
-              </div>
-            ) : (
-              <button onClick={() => setShowAddForm(true)} className="w-full py-5 bg-orange-50 border-2 border-dashed border-orange-200 rounded-3xl text-orange-600 font-black mb-8 flex items-center justify-center gap-3 active:scale-[0.98] transition-all">
-                <i className="fas fa-plus-circle"></i> ADD NEW PRODUCT
-              </button>
-            )}
-
-            <div className="space-y-4">
-              <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Current Inventory ({products.length})</h3>
-              {products.map(p => (
-                <div key={p.id} className="bg-white border border-gray-100 p-4 rounded-3xl flex items-center gap-4 shadow-sm">
-                  <img src={p.image} className="w-16 h-16 rounded-2xl object-cover bg-gray-100" />
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-black text-gray-900 leading-tight mb-0.5">{p.name}</p>
-                    <p className="text-[10px] font-bold text-orange-600 uppercase mb-1">{p.category} • ₹{p.price}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => startEdit(p)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400"><i className="fas fa-edit text-xs"></i></button>
-                    <button onClick={() => handleDelete(p.id)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-400"><i className="fas fa-trash text-xs"></i></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      };
-
-      const ProfileSetupView = ({ initialData, onSave, isEditing, onOpenAdmin }) => {
-        const [form, setForm] = useState(initialData || { fullName: '', phone: '', address: '' });
-        const isValid = form.fullName.trim() !== '' && form.phone.length >= 10 && form.address.trim().length > 5;
-
-        return (
-          <div className="min-h-screen bg-white flex flex-col p-8 fade-in">
-            <div className="mt-12 mb-10 text-center">
-              <div className="w-20 h-20 bg-orange-100 rounded-[24px] flex items-center justify-center text-orange-600 text-3xl mx-auto mb-6 shadow-inner scale-up">
-                <i className={`fas ${isEditing ? 'fa-user-edit' : 'fa-hand-sparkles'}`}></i>
-              </div>
-              <h1 className="text-3xl font-black text-gray-900 mb-2">{isEditing ? 'Update Profile' : 'Hello There!'}</h1>
-              <p className="text-gray-500 text-sm px-4">
-                {isEditing ? 'Modify your default delivery details below.' : 'Please enter your details once to start ordering delicious treats.'}
-              </p>
-            </div>
-
-            <div className="space-y-5">
-              <div className="space-y-4 text-left">
-                <div className="group">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 block">Your Name</label>
-                  <input 
-                    className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-orange-500 focus:bg-white transition-all text-sm font-medium outline-none" 
-                    placeholder="Enter full name" 
-                    value={form.fullName} 
-                    onChange={e => setForm({...form, fullName: e.target.value})} 
-                  />
-                </div>
-                <div className="group">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 block">WhatsApp Number</label>
-                  <input 
-                    className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-orange-500 focus:bg-white transition-all text-sm font-medium outline-none" 
-                    placeholder="10 digit mobile number" 
-                    type="tel" 
-                    value={form.phone} 
-                    onChange={e => setForm({...form, phone: e.target.value.replace(/\D/g, '')})} 
-                  />
-                </div>
-                <div className="group">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 block">Exact Delivery Address</label>
-                  <textarea 
-                    className="w-full p-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-orange-500 focus:bg-white transition-all text-sm font-medium outline-none resize-none" 
-                    placeholder="Building name, street, area, landmark..." 
-                    rows="4" 
-                    value={form.address} 
-                    onChange={e => setForm({...form, address: e.target.value})} 
-                  />
-                </div>
-              </div>
-
-              <button 
-                disabled={!isValid}
-                onClick={() => onSave(form)}
-                className={`w-full py-5 rounded-2xl font-black shadow-xl transition-all flex items-center justify-center gap-3 ${isValid ? 'bg-orange-600 text-white active:scale-95' : 'bg-gray-100 text-gray-300'}`}
-              >
-                {isEditing ? 'UPDATE PROFILE' : 'SAVE & START SHOPPING'}
-                <i className="fas fa-arrow-right text-xs"></i>
-              </button>
-              
-              {isEditing && (
-                <div className="space-y-3 pt-4 border-t border-gray-50">
-                  <button onClick={onOpenAdmin} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all">
-                    <i className="fas fa-lock text-[10px]"></i> ADMIN PANEL
-                  </button>
-                  <button 
-                    onClick={() => onSave(null)} 
-                    className="w-full py-4 text-gray-400 font-bold text-xs uppercase tracking-widest"
-                  >
-                    Back to Menu
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      };
-
-      const Header = ({ cartCount, profile, onOpenCart, onOpenOrders, onEditProfile }) => (
-        <header role="banner" className="fixed top-0 left-0 right-0 max-w-md mx-auto z-50 bg-white/95 backdrop-blur-sm shadow-sm px-4 py-3 flex items-center justify-between border-b border-orange-50">
+      const Header = ({ cartCount, onOpenCart, onOpenOrders }) => (
+        <header role="banner" className="fixed top-0 left-0 right-0 max-w-md mx-auto z-50 bg-white shadow-sm px-4 py-3 flex items-center justify-between border-b border-orange-50">
           <div className="flex items-center gap-2">
-            <button 
-              onClick={onEditProfile}
-              className="w-9 h-9 bg-orange-600 rounded-lg flex items-center justify-center text-white shadow-sm active:scale-90 transition-transform"
-            >
-              <i className="fas fa-user-circle text-lg"></i>
-            </button>
-            <div className="flex flex-col text-left">
-              <h1 className="text-sm font-black text-gray-900 leading-none tracking-tight">{SHOP_NAME}</h1>
-              {profile && <p className="text-[9px] font-bold text-orange-600 mt-0.5">Hi, {profile.fullName.split(' ')[0]}</p>}
+            <div className="w-9 h-9 bg-orange-600 rounded-lg flex items-center justify-center text-white shadow-sm" aria-hidden="true">
+              <i className="fas fa-store text-lg"></i>
+            </div>
+            <div onClick={() => window.location.reload()} className="cursor-pointer" role="button" aria-label="Go to home page">
+              <h1 className="text-lg font-black text-gray-900 leading-none tracking-tight">{SHOP_NAME}</h1>
+              <p className="text-[9px] text-orange-600 font-bold uppercase tracking-widest">Premium Confectionery</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
             <button 
               onClick={onOpenOrders} 
-              className="w-10 h-10 flex items-center justify-center text-gray-400 active:scale-90 transition-transform"
+              className="w-10 h-10 flex items-center justify-center text-gray-500 active:scale-90 transition-transform"
               aria-label="View order history"
             >
               <i className="fas fa-clock-rotate-left text-lg"></i>
@@ -354,7 +191,7 @@
       );
 
       const ProductCard = ({ product, onAdd, onClick }) => (
-        <article className="bg-white rounded-2xl overflow-hidden shadow-sm border border-orange-50 flex flex-col h-full active:scale-[0.98] transition-transform cursor-pointer text-left" onClick={() => onClick(product)}>
+        <article className="bg-white rounded-2xl overflow-hidden shadow-sm border border-orange-50 flex flex-col h-full active:scale-[0.98] transition-transform cursor-pointer" onClick={() => onClick(product)}>
           <div className="relative h-36">
             <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
             <div className="absolute top-2 right-2">
@@ -363,13 +200,10 @@
           </div>
           <div className="p-3 flex flex-col flex-1">
             <h3 className="text-sm font-bold text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
-            <p className="text-[10px] text-gray-500 line-clamp-2 mb-3 flex-1 leading-tight">{product.description}</p>
+            <p className="text-[10px] text-gray-500 line-clamp-2 mb-3 flex-1">{product.description}</p>
             <div className="mt-auto">
               <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="text-sm font-black text-orange-600">₹{product.price}</span>
-                  <span className="text-[8px] font-bold text-gray-400">250 GRAMS</span>
-                </div>
+                <span className="text-sm font-black text-orange-600">₹{product.price}</span>
                 <button 
                   onClick={(e) => { e.stopPropagation(); onAdd(product); }} 
                   className="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center active:bg-orange-600 active:text-white transition-colors"
@@ -383,7 +217,7 @@
       );
 
       const ProductDetailView = ({ product, onBack, onAdd, cartCount, onOpenCart }) => (
-        <div role="main" className="min-h-screen bg-white fade-in relative pb-28 text-left">
+        <div role="main" className="min-h-screen bg-white fade-in relative pb-28">
           <div className="fixed top-0 left-0 right-0 z-50 max-w-md mx-auto px-4 py-4 flex justify-between items-center pointer-events-none">
             <button onClick={onBack} className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20 active:scale-90 transition-transform pointer-events-auto shadow-lg"><i className="fas fa-arrow-left"></i></button>
             <button onClick={onOpenCart} className="relative w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/20 active:scale-90 transition-transform pointer-events-auto shadow-lg">
@@ -398,10 +232,7 @@
           <div className="px-6 -mt-12 relative z-10">
             <div className="inline-block px-3 py-1 bg-orange-50 text-orange-600 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">{product.category}</div>
             <h2 className="text-3xl font-black text-gray-900 mb-2 leading-tight">{product.name}</h2>
-            <div className="flex items-end gap-3 mb-6">
-              <p className="text-2xl font-black text-orange-600">₹{product.price}</p>
-              <p className="text-[10px] font-black text-gray-400 mb-1 uppercase tracking-widest">for 250 Grams</p>
-            </div>
+            <p className="text-2xl font-black text-orange-600 mb-6">₹{product.price}</p>
             <div className="space-y-4">
               <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Description</h3>
               <p className="text-gray-600 leading-relaxed text-sm">{product.description}</p>
@@ -417,13 +248,10 @@
 
       const PastOrdersView = ({ orders, onBack }) => {
         const [expandedId, setExpandedId] = useState(null);
-        const formatTime = (dateStr) => new Date(dateStr).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-        const formatDate = (dateStr) => new Date(dateStr).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-
         return (
           <div role="main" className="p-4 pt-16 min-h-screen bg-[#fffaf0] fade-in text-left">
             <div className="flex items-center gap-4 mb-8">
-              <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-orange-50 active:scale-90 transition-transform"><i className="fas fa-arrow-left"></i></button>
+              <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-orange-50"><i className="fas fa-arrow-left"></i></button>
               <h2 className="text-2xl font-black text-gray-900">Order History</h2>
             </div>
             {orders.length === 0 ? (
@@ -433,24 +261,28 @@
                 <button onClick={onBack} className="mt-8 text-orange-600 font-black uppercase text-[10px] tracking-widest bg-orange-50 px-6 py-3 rounded-full">Go to Menu</button>
               </div>
             ) : (
-              <div className="space-y-4 pb-24">
+              <div className="space-y-4 pb-10">
                 {orders.map(order => (
-                  <div key={order.id} className="bg-white rounded-[28px] border border-orange-50 shadow-sm overflow-hidden transition-all duration-300">
+                  <div key={order.id} className="bg-white rounded-3xl border border-orange-50 shadow-sm overflow-hidden transition-all duration-300">
                     <button className="w-full p-5 flex justify-between items-center text-left" onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}>
-                      <div className="flex-1">
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
                           <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">#{order.id.slice(-6)}</span>
-                          <span className="text-[10px] font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded-md flex items-center gap-1">
-                            <i className="far fa-clock text-orange-600"></i> {formatTime(order.date)}
-                          </span>
+                          <span className="text-[10px] font-bold text-gray-400">{new Date(order.date).toLocaleDateString()}</span>
                         </div>
-                        <div className="flex items-center justify-between pr-4 mt-2">
-                          <p className="text-sm font-black text-gray-900">Total: ₹{order.grandTotal}</p>
-                          <span className="text-[9px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded-md">SENT</span>
+                        <p className="text-sm font-black text-gray-900">Total: ₹{order.grandTotal}</p>
+                      </div>
+                      <i className={`fas fa-chevron-down text-gray-400 transition-transform ${expandedId === order.id ? 'rotate-180' : ''}`}></i>
+                    </button>
+                    {expandedId === order.id && (
+                      <div className="px-5 pb-5 border-t border-dashed border-orange-50 pt-4 animate-fadeIn">
+                        <div className="space-y-2 mb-4">
+                          {order.items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-[11px]"><span className="text-gray-500">{item.name} x{item.quantity}</span><span className="font-bold text-gray-700">₹{item.price * item.quantity}</span></div>
+                          ))}
                         </div>
                       </div>
-                      <i className={`fas fa-chevron-down text-gray-300 transition-transform ${expandedId === order.id ? 'rotate-180' : ''}`}></i>
-                    </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -462,7 +294,7 @@
       const CartView = ({ cart, subtotal, platformFee, deliveryCharge, grandTotal, onUpdate, onRemove, onBack, onCheckout }) => (
         <div role="main" className="p-4 pt-16 min-h-screen bg-white fade-in text-left">
           <div className="flex items-center gap-4 mb-8">
-            <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 active:scale-90 transition-transform"><i className="fas fa-arrow-left"></i></button>
+            <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50"><i className="fas fa-arrow-left"></i></button>
             <h2 className="text-2xl font-black text-gray-900">Your Cart</h2>
           </div>
           {cart.length === 0 ? (
@@ -496,7 +328,7 @@
                 <div className="border-t border-gray-200 pt-3 flex justify-between items-center"><span className="font-black text-gray-900">Grand Total</span><span className="text-xl font-black text-orange-900">₹{grandTotal}</span></div>
               </div>
               <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-6 bg-white border-t rounded-t-[32px] shadow-2xl z-50">
-                <button onClick={onCheckout} className="w-full bg-orange-600 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform">PROCEED TO ORDER <i className="fas fa-chevron-right text-xs"></i></button>
+                <button onClick={onCheckout} className="w-full bg-orange-600 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3">PROCEED TO CHECKOUT <i className="fas fa-chevron-right text-xs"></i></button>
               </div>
             </>
           )}
@@ -505,7 +337,7 @@
 
       const SuccessView = ({ order, onBack }) => {
         const handleResend = () => {
-          const itemsText = order.items.map(item => `• *${item.name}* (x${item.quantity}) - ₹${item.price * item.quantity}`).join('\n');
+          const itemsText = order.items.map(i => `• *${i.name}* (x${i.quantity}) - ₹${i.price * i.quantity}`).join('\n');
           const message = `🛍️ *ORDER CONFIRMATION: ${SHOP_NAME}*\n\n` +
                           `🆔 *Order ID:* #${order.id.slice(-6)}\n` +
                           `👤 *Customer:* ${order.details.fullName}\n` +
@@ -523,87 +355,70 @@
             <h2 className="text-3xl font-black text-gray-900 mb-2">Order Confirmed!</h2>
             <p className="text-sm text-gray-500 mb-8">Summary has been sent to WhatsApp.</p>
             <div className="w-full bg-white rounded-3xl p-6 text-left border border-orange-100 mb-8 shadow-sm">
-              <div className="flex justify-between mb-4 text-xs font-black uppercase tracking-widest text-orange-600">
-                <span>Order Summary</span>
-                <span>#{order.id.slice(-6)}</span>
+              <div className="flex justify-between mb-4">
+                <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Order ID</span>
+                <span className="text-sm font-black">#{order.id.slice(-6)}</span>
               </div>
               <div className="space-y-2 mb-4 border-y py-4">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex justify-between text-xs items-center">
-                    <span className="text-gray-700 font-medium">{item.name} x{item.quantity}</span>
+                    <span className="text-gray-700">{item.name} x{item.quantity}</span>
                     <span className="font-bold">₹{item.price * item.quantity}</span>
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between text-base font-black text-orange-900 uppercase tracking-tighter">
+              <div className="flex justify-between text-base font-black text-orange-900">
                 <span>Grand Total</span>
                 <span>₹{order.grandTotal}</span>
               </div>
             </div>
             <div className="w-full space-y-3">
-              <button onClick={handleResend} className="w-full bg-green-600 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform">
+              <button onClick={handleResend} className="w-full bg-green-600 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3">
                 <i className="fab fa-whatsapp text-xl"></i> RE-SEND TO WHATSAPP
               </button>
-              <button onClick={onBack} className="w-full bg-gray-900 text-white font-black py-4 rounded-2xl shadow-lg text-[11px] uppercase tracking-widest active:scale-95 transition-transform">Back to Menu</button>
+              <button onClick={onBack} className="w-full bg-gray-900 text-white font-black py-4 rounded-2xl shadow-lg text-[11px] uppercase tracking-widest">Back to Menu</button>
             </div>
           </div>
         );
       };
 
-      const CheckoutView = ({ grandTotal, profile, onSubmit, onBack }) => {
+      const CheckoutView = ({ grandTotal, onSubmit, onBack }) => {
         const [step, setStep] = useState(1);
-        const [form, setForm] = useState({ fullName: profile.fullName, phone: profile.phone, address: profile.address, payment: 'cod' });
-        const isValid = form.fullName.trim() !== '' && form.phone.length >= 10 && form.address.trim().length > 5;
+        const [form, setForm] = useState({ fullName: '', phone: '', address: '', delivery: 'home', payment: 'cod' });
+        const isValid = form.fullName && form.phone.length >= 10 && form.address;
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(SHOP_NAME)}&am=${grandTotal}&cu=INR`)}`;
 
         return (
           <div role="main" className="p-4 pt-16 min-h-screen bg-white fade-in text-left">
             <div className="flex items-center gap-4 mb-10">
-              <button onClick={step === 1 ? onBack : () => setStep(1)} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 active:scale-90 transition-transform"><i className="fas fa-arrow-left"></i></button>
+              <button onClick={step === 1 ? onBack : () => setStep(1)} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50"><i className="fas fa-arrow-left"></i></button>
               <h2 className="text-2xl font-black text-gray-900">Checkout</h2>
             </div>
             {step === 1 ? (
               <div className="space-y-5">
                 <div className="space-y-4">
-                  <div>
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 block">Confirm Name</label>
-                    <input className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm font-medium outline-none" value={form.fullName} onChange={e => setForm({...form, fullName: e.target.value})} />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 block">WhatsApp Number</label>
-                    <input className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm font-medium outline-none" type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 block">Delivery Address</label>
-                    <textarea className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm font-medium outline-none resize-none" rows="3" value={form.address} onChange={e => setForm({...form, address: e.target.value})} />
-                  </div>
+                  <input className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm" placeholder="Full Name" value={form.fullName} onChange={e => setForm({...form, fullName: e.target.value})} />
+                  <input className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm" placeholder="WhatsApp Number" type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+                  <textarea className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm" placeholder="Delivery Address" rows="3" value={form.address} onChange={e => setForm({...form, address: e.target.value})} />
                 </div>
-                <button disabled={!isValid} onClick={() => setStep(2)} className={`w-full py-4 rounded-2xl font-black shadow-lg transition-all active:scale-95 ${isValid ? 'bg-orange-600 text-white shadow-orange-100' : 'bg-gray-100 text-gray-300'}`}>CONTINUE TO PAYMENT</button>
+                <button disabled={!isValid} onClick={() => setStep(2)} className={`w-full py-4 rounded-2xl font-black shadow-lg transition-all ${isValid ? 'bg-orange-600 text-white active:scale-95' : 'bg-gray-100 text-gray-300'}`}>CONTINUE TO PAYMENT</button>
               </div>
             ) : (
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <button onClick={() => setForm({...form, payment: 'qr'})} className={`w-full p-5 rounded-2xl border-2 flex items-center gap-4 transition-all active:scale-95 ${form.payment === 'qr' ? 'border-orange-500 bg-orange-50' : 'border-transparent bg-gray-50'}`}>
+                  <button onClick={() => setForm({...form, payment: 'qr'})} className={`w-full p-5 rounded-2xl border-2 flex items-center gap-4 ${form.payment === 'qr' ? 'border-orange-500 bg-orange-50' : 'border-transparent bg-gray-50'}`}>
                     <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-orange-600 shadow-sm"><i className="fas fa-qrcode"></i></div>
-                    <div className="text-left"><p className="font-black text-sm text-gray-900">UPI Scan & Pay</p><p className="text-[10px] text-gray-500">Auto-fills ₹{grandTotal}</p></div>
+                    <div className="text-left"><p className="font-black text-sm text-gray-900">UPI Scan & Pay</p><p className="text-[10px] text-gray-500">Pay ₹{grandTotal}</p></div>
                   </button>
-                  <button onClick={() => setForm({...form, payment: 'cod'})} className={`w-full p-5 rounded-2xl border-2 flex items-center gap-4 transition-all active:scale-95 ${form.payment === 'cod' ? 'border-orange-500 bg-orange-50' : 'border-transparent bg-gray-50'}`}>
+                  <button onClick={() => setForm({...form, payment: 'cod'})} className={`w-full p-5 rounded-2xl border-2 flex items-center gap-4 ${form.payment === 'cod' ? 'border-orange-500 bg-orange-50' : 'border-transparent bg-gray-50'}`}>
                     <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-500 shadow-sm"><i className="fas fa-money-bill-wave"></i></div>
-                    <div className="text-left"><p className="font-black text-sm text-gray-900">Cash on Delivery</p><p className="text-[10px] text-gray-500 uppercase tracking-widest font-black">Pay at Door</p></div>
+                    <div className="text-left"><p className="font-black text-sm text-gray-900">Cash on Delivery</p><p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Pay at Doorstep</p></div>
                   </button>
                 </div>
                 {form.payment === 'qr' && (
-                  <div className="space-y-4">
-                    <div className="bg-red-50 p-4 rounded-2xl border border-red-100 text-center animate-pulse">
-                      <p className="text-[11px] font-black text-red-600 uppercase tracking-tight">
-                        Note: send screenshot of the payment other wise order will not be accepted
-                      </p>
-                    </div>
-                    <div className="bg-white p-6 rounded-3xl border border-dashed border-orange-200 text-center shadow-sm">
-                      <p className="text-[10px] font-black text-orange-900 mb-4 uppercase tracking-widest">Amount to Pay: ₹{grandTotal}</p>
-                      <img src={qrUrl} alt="UPI QR" className="mx-auto w-44 h-44 mb-4 rounded-xl border-4 border-white shadow-lg" />
-                      <div className="bg-orange-50 p-2 rounded-lg"><p className="text-[9px] font-black text-orange-800">Scan using GPay, PhonePe or Paytm</p></div>
-                    </div>
+                  <div className="bg-white p-6 rounded-3xl border border-dashed border-orange-200 text-center shadow-sm">
+                    <p className="text-[10px] font-black text-orange-900 mb-4 uppercase tracking-widest">Amount: ₹{grandTotal}</p>
+                    <img src={qrUrl} alt="UPI QR" className="mx-auto w-40 h-40 mb-4 rounded-xl border-4 border-white shadow-lg" />
                   </div>
                 )}
                 <button onClick={() => onSubmit(form)} className="w-full bg-green-600 text-white py-5 rounded-2xl font-black shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform">
@@ -617,15 +432,12 @@
 
       /** --- MAIN APP --- **/
       const App = () => {
-        const [view, setView] = useState('onboarding'); 
+        const [view, setView] = useState('catalog');
         const [selectedProduct, setSelectedProduct] = useState(null);
         const [lastOrder, setLastOrder] = useState(null);
         const [cart, setCart] = useState([]);
-        const [category, setCategory] = useState('Sweets');
+        const [category, setCategory] = useState('All');
         const [pastOrders, setPastOrders] = useState([]);
-        const [profile, setProfile] = useState(null);
-        const [products, setProducts] = useState(INITIAL_PRODUCTS);
-        const [isInitializing, setIsInitializing] = useState(true);
 
         const subtotal = useMemo(() => cart.reduce((s, i) => s + i.price * i.quantity, 0), [cart]);
         const platformFee = PLATFORM_FEE;
@@ -634,34 +446,13 @@
         const cartCount = useMemo(() => cart.reduce((a, b) => a + b.quantity, 0), [cart]);
 
         useEffect(() => {
-          const storedOrders = localStorage.getItem('ramdev_past_orders');
-          if (storedOrders) { try { setPastOrders(JSON.parse(storedOrders)); } catch(e) {} }
-          const storedProfile = localStorage.getItem('ramdev_profile');
-          if (storedProfile) { setProfile(JSON.parse(storedProfile)); setView('catalog'); }
-          const storedProducts = localStorage.getItem('ramdev_products');
-          if (storedProducts) { setProducts(JSON.parse(storedProducts)); }
-          setIsInitializing(false);
+          const stored = localStorage.getItem('ramdev_past_orders');
+          if (stored) { try { setPastOrders(JSON.parse(stored)); } catch(e) {} }
         }, []);
 
-        const saveProfile = (data) => {
-          if (!data) { setView('catalog'); return; }
-          setProfile(data);
-          localStorage.setItem('ramdev_profile', JSON.stringify(data));
-          setView('catalog');
-        };
-
-        const updateProducts = (updated) => {
-          setProducts(updated);
-          localStorage.setItem('ramdev_products', JSON.stringify(updated));
-        };
-
         const handleFinalOrder = (details) => {
-          const updatedProfile = { fullName: details.fullName, phone: details.phone, address: details.address };
-          setProfile(updatedProfile);
-          localStorage.setItem('ramdev_profile', JSON.stringify(updatedProfile));
-
           const orderId = 'ORD-' + Date.now();
-          const newOrder = { id: orderId, date: new Date().toISOString(), items: [...cart], grandTotal, details };
+          const newOrder = { id: orderId, date: new Date().toISOString(), items: [...cart], subtotal, platformFee, deliveryCharge, grandTotal, details: details };
           const updatedOrders = [newOrder, ...pastOrders];
           setPastOrders(updatedOrders);
           localStorage.setItem('ramdev_past_orders', JSON.stringify(updatedOrders));
@@ -684,62 +475,32 @@
 
         useEffect(() => {
           const loader = document.getElementById('loader');
-          if (loader && !isInitializing) { 
-            loader.style.opacity = '0'; 
-            setTimeout(() => loader.remove(), 400); 
-          }
-        }, [isInitializing]);
+          if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
+        }, []);
 
         const renderView = () => {
-          if (isInitializing) return null;
-          if (view === 'onboarding') return <ProfileSetupView onSave={saveProfile} />;
-          if (view === 'edit_profile') return <ProfileSetupView initialData={profile} onSave={saveProfile} isEditing={true} onOpenAdmin={() => setView('admin')} />;
-          if (view === 'admin') return <AdminPanelView products={products} onUpdateProducts={updateProducts} onBack={() => setView('edit_profile')} />;
           if (view === 'success' && lastOrder) return <SuccessView order={lastOrder} onBack={() => { setView('catalog'); setLastOrder(null); }} />;
-          if (view === 'details' && selectedProduct) return <ProductDetailView product={selectedProduct} onBack={() => setView('catalog')} onAdd={(p) => setCart(prev => {
-            const exists = prev.find(i => i.id === p.id);
-            if (exists) return prev.map(i => i.id === p.id ? {...i, quantity: i.quantity + 1} : i);
-            return [...prev, {...p, quantity: 1}];
-          })} cartCount={cartCount} onOpenCart={() => setView('cart')} />;
+          if (view === 'details' && selectedProduct) return <ProductDetailView product={selectedProduct} onBack={() => setView('catalog')} onAdd={(p) => setCart(prev => [...prev, {...p, quantity: 1}])} cartCount={cartCount} onOpenCart={() => setView('cart')} />;
           if (view === 'orders') return <PastOrdersView orders={pastOrders} onBack={() => setView('catalog')} />;
           if (view === 'cart') return <CartView cart={cart} subtotal={subtotal} platformFee={platformFee} deliveryCharge={deliveryCharge} grandTotal={grandTotal} onUpdate={(id, d) => setCart(p => p.map(i => i.id === id ? {...i, quantity: Math.max(1, i.quantity + d)} : i))} onRemove={(id) => setCart(p => p.filter(i => i.id !== id))} onBack={() => setView('catalog')} onCheckout={() => setView('checkout')} />;
-          if (view === 'checkout') return <CheckoutView grandTotal={grandTotal} profile={profile} onBack={() => setView('cart')} onSubmit={handleFinalOrder} />;
+          if (view === 'checkout') return <CheckoutView grandTotal={grandTotal} onBack={() => setView('cart')} onSubmit={handleFinalOrder} />;
           
-          const filtered = products.filter(p => p.category === category);
+          const filtered = category === 'All' ? PRODUCTS : PRODUCTS.filter(p => p.category === category);
           return (
             <div className="min-h-screen flex flex-col max-w-md mx-auto bg-[#fffaf0] relative">
-              <Header 
-                cartCount={cartCount} 
-                profile={profile} 
-                onOpenCart={() => setView('cart')} 
-                onOpenOrders={() => setView('orders')} 
-                onEditProfile={() => setView('edit_profile')}
-              />
+              <Header cartCount={cartCount} onOpenCart={() => setView('cart')} onOpenOrders={() => setView('orders')} />
               <main role="main" className="flex-1 pt-20 pb-28 px-4 fade-in">
                 <nav className="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2">
-                  {['Sweets', 'Cakes', 'Snacks'].map(cat => (
-                    <button key={cat} onClick={() => setCategory(cat)} className={`px-6 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-sm whitespace-nowrap transition-all active:scale-95 ${category === cat ? 'bg-orange-600 text-white shadow-orange-100' : 'bg-white text-orange-900 border border-orange-100'}`}>{cat}</button>
+                  {['All', 'Sweets', 'Cakes', 'Snacks'].map(cat => (
+                    <button key={cat} onClick={() => setCategory(cat)} className={`px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-sm whitespace-nowrap ${category === cat ? 'bg-orange-600 text-white' : 'bg-white text-orange-900 border border-orange-100'}`}>{cat}</button>
                   ))}
                 </nav>
-                
-                {category === 'Sweets' ? (
-                  <div className="product-grid">
-                    {filtered.map(p => <ProductCard key={p.id} product={p} onAdd={(p) => setCart(prev => {
-                      const exists = prev.find(i => i.id === p.id);
-                      if (exists) return prev.map(i => i.id === p.id ? {...i, quantity: i.quantity + 1} : i);
-                      return [...prev, {...p, quantity: 1}];
-                    })} onClick={(p) => { setSelectedProduct(p); setView('details'); }} />)}
-                  </div>
-                ) : (
-                  <div className="py-20 flex flex-col items-center justify-center text-center animate-fadeIn">
-                    <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 mb-6 scale-up shadow-inner"><i className="fas fa-magic text-3xl"></i></div>
-                    <h3 className="text-xl font-black text-gray-900 mb-2 uppercase tracking-tighter">Coming Soon</h3>
-                    <p className="text-xs text-gray-500 font-bold max-w-[200px] leading-relaxed">Our kitchen is currently preparing a fresh menu for {category}. Stay tuned!</p>
-                  </div>
-                )}
+                <div className="product-grid">
+                  {filtered.map(p => <ProductCard key={p.id} product={p} onAdd={(p) => setCart(prev => [...prev, {...p, quantity: 1}])} onClick={(p) => { setSelectedProduct(p); setView('details'); }} />)}
+                </div>
               </main>
-              {cartCount > 0 && (
-                <div className="fixed bottom-6 left-4 right-4 z-40 max-w-[calc(448px-2rem)] mx-auto animate-fadeIn">
+              {cart.length > 0 && (
+                <div className="fixed bottom-6 left-4 right-4 z-40 max-w-[calc(448px-2rem)] mx-auto">
                   <button onClick={() => setView('cart')} className="w-full bg-orange-600 text-white font-black py-4 rounded-2xl shadow-2xl flex justify-between px-6 items-center border-4 border-white/20 active:scale-[0.97] transition-transform">
                     <span className="flex items-center gap-2 text-xs uppercase tracking-widest font-black"><i className="fas fa-shopping-basket"></i> {cartCount} Items</span>
                     <span className="text-sm font-black tracking-tight">₹{grandTotal} <i className="fas fa-chevron-right ml-1 text-[10px]"></i></span>
@@ -754,5 +515,6 @@
       const root = ReactDOM.createRoot(document.getElementById('root'));
       root.render(<App />);
     </script>
-  </body>
+  <script type="module" src="/index.tsx"></script>
+</body>
 </html>
