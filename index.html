@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -298,38 +297,77 @@
 
       const PastOrdersView = ({ orders, onBack }) => {
         const [expandedId, setExpandedId] = useState(null);
+        
+        const formatTime = (dateStr) => {
+          const date = new Date(dateStr);
+          return date.toLocaleString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          });
+        };
+
+        const formatDate = (dateStr) => {
+          const date = new Date(dateStr);
+          return date.toLocaleString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          });
+        };
+
         return (
           <div role="main" className="p-4 pt-16 min-h-screen bg-[#fffaf0] fade-in text-left">
             <div className="flex items-center gap-4 mb-8">
-              <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-orange-50"><i className="fas fa-arrow-left"></i></button>
+              <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-orange-50 active:scale-90 transition-transform"><i className="fas fa-arrow-left"></i></button>
               <h2 className="text-2xl font-black text-gray-900">Order History</h2>
             </div>
             {orders.length === 0 ? (
               <div className="py-24 text-center">
                 <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6"><i className="fas fa-box-open text-3xl text-orange-200"></i></div>
                 <h3 className="text-lg font-bold text-gray-800">No orders yet</h3>
-                <button onClick={onBack} className="mt-8 text-orange-600 font-black uppercase text-[10px] tracking-widest bg-orange-50 px-6 py-3 rounded-full">Go to Menu</button>
+                <button onClick={onBack} className="mt-8 text-orange-600 font-black uppercase text-[10px] tracking-widest bg-orange-50 px-6 py-3 rounded-full active:scale-95 transition-transform">Go to Menu</button>
               </div>
             ) : (
-              <div className="space-y-4 pb-10">
+              <div className="space-y-4 pb-24">
                 {orders.map(order => (
-                  <div key={order.id} className="bg-white rounded-3xl border border-orange-50 shadow-sm overflow-hidden transition-all duration-300">
+                  <div key={order.id} className="bg-white rounded-[28px] border border-orange-50 shadow-sm overflow-hidden transition-all duration-300">
                     <button className="w-full p-5 flex justify-between items-center text-left" onClick={() => setExpandedId(expandedId === order.id ? null : order.id)}>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
+                      <div className="flex-1">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
                           <span className="text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md uppercase tracking-tighter">#{order.id.slice(-6)}</span>
-                          <span className="text-[10px] font-bold text-gray-400">{new Date(order.date).toLocaleDateString()}</span>
+                          <span className="text-[10px] font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <i className="far fa-clock text-orange-600"></i> {formatTime(order.date)}
+                          </span>
+                          <span className="text-[10px] font-medium text-gray-400">
+                            {formatDate(order.date)}
+                          </span>
                         </div>
-                        <p className="text-sm font-black text-gray-900">Total: ₹{order.grandTotal}</p>
+                        <div className="flex items-center justify-between pr-4 mt-2">
+                          <p className="text-sm font-black text-gray-900">Total: ₹{order.grandTotal}</p>
+                          <span className="text-[9px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded-md">SENT</span>
+                        </div>
                       </div>
-                      <i className={`fas fa-chevron-down text-gray-400 transition-transform ${expandedId === order.id ? 'rotate-180' : ''}`}></i>
+                      <i className={`fas fa-chevron-down text-gray-300 transition-transform ${expandedId === order.id ? 'rotate-180' : ''}`}></i>
                     </button>
                     {expandedId === order.id && (
                       <div className="px-5 pb-5 border-t border-dashed border-orange-50 pt-4 animate-fadeIn">
+                        <div className="flex justify-between items-center mb-3">
+                          <h4 className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Items Detail</h4>
+                          <span className="text-[9px] font-bold text-gray-400 italic">Ordered at {formatTime(order.date)}</span>
+                        </div>
                         <div className="space-y-2 mb-4">
                           {order.items.map((item, idx) => (
-                            <div key={idx} className="flex justify-between text-[11px]"><span className="text-gray-500">{item.name} x{item.quantity}</span><span className="font-bold text-gray-700">₹{item.price * item.quantity}</span></div>
+                            <div key={idx} className="flex justify-between text-[11px] items-center">
+                              <span className="text-gray-600 font-medium">{item.name} <span className="text-gray-400 text-[10px]">x{item.quantity}</span></span>
+                              <span className="font-bold text-gray-700">₹{item.price * item.quantity}</span>
+                            </div>
                           ))}
+                        </div>
+                        <div className="bg-orange-50/50 p-3 rounded-xl border border-orange-100/50">
+                           <p className="text-[9px] font-bold text-orange-800 line-clamp-2 leading-tight">
+                            <i className="fas fa-map-marker-alt mr-1"></i> {order.details.address}
+                           </p>
                         </div>
                       </div>
                     )}
@@ -344,7 +382,7 @@
       const CartView = ({ cart, subtotal, platformFee, deliveryCharge, grandTotal, onUpdate, onRemove, onBack, onCheckout }) => (
         <div role="main" className="p-4 pt-16 min-h-screen bg-white fade-in text-left">
           <div className="flex items-center gap-4 mb-8">
-            <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50"><i className="fas fa-arrow-left"></i></button>
+            <button onClick={onBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 active:scale-90 transition-transform"><i className="fas fa-arrow-left"></i></button>
             <h2 className="text-2xl font-black text-gray-900">Your Cart</h2>
           </div>
           {cart.length === 0 ? (
@@ -378,7 +416,7 @@
                 <div className="border-t border-gray-200 pt-3 flex justify-between items-center"><span className="font-black text-gray-900">Grand Total</span><span className="text-xl font-black text-orange-900">₹{grandTotal}</span></div>
               </div>
               <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-6 bg-white border-t rounded-t-[32px] shadow-2xl z-50">
-                <button onClick={onCheckout} className="w-full bg-orange-600 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3">PROCEED TO ORDER <i className="fas fa-chevron-right text-xs"></i></button>
+                <button onClick={onCheckout} className="w-full bg-orange-600 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform">PROCEED TO ORDER <i className="fas fa-chevron-right text-xs"></i></button>
               </div>
             </>
           )}
@@ -387,7 +425,7 @@
 
       const SuccessView = ({ order, onBack }) => {
         const handleResend = () => {
-          const itemsText = order.items.map(i => `• *${i.name}* (x${i.quantity}) - ₹${i.price * i.quantity}`).join('\n');
+          const itemsText = order.items.map(item => `• *${item.name}* (x${item.quantity}) - ₹${item.price * item.quantity}`).join('\n');
           const message = `🛍️ *ORDER CONFIRMATION: ${SHOP_NAME}*\n\n` +
                           `🆔 *Order ID:* #${order.id.slice(-6)}\n` +
                           `👤 *Customer:* ${order.details.fullName}\n` +
@@ -423,10 +461,10 @@
               </div>
             </div>
             <div className="w-full space-y-3">
-              <button onClick={handleResend} className="w-full bg-green-600 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3">
+              <button onClick={handleResend} className="w-full bg-green-600 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform">
                 <i className="fab fa-whatsapp text-xl"></i> RE-SEND TO WHATSAPP
               </button>
-              <button onClick={onBack} className="w-full bg-gray-900 text-white font-black py-4 rounded-2xl shadow-lg text-[11px] uppercase tracking-widest">Back to Menu</button>
+              <button onClick={onBack} className="w-full bg-gray-900 text-white font-black py-4 rounded-2xl shadow-lg text-[11px] uppercase tracking-widest active:scale-95 transition-transform">Back to Menu</button>
             </div>
           </div>
         );
@@ -447,7 +485,7 @@
         return (
           <div role="main" className="p-4 pt-16 min-h-screen bg-white fade-in text-left">
             <div className="flex items-center gap-4 mb-10">
-              <button onClick={step === 1 ? onBack : () => setStep(1)} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50"><i className="fas fa-arrow-left"></i></button>
+              <button onClick={step === 1 ? onBack : () => setStep(1)} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 active:scale-90 transition-transform"><i className="fas fa-arrow-left"></i></button>
               <h2 className="text-2xl font-black text-gray-900">Checkout</h2>
             </div>
             {step === 1 ? (
@@ -455,31 +493,31 @@
                 <div className="space-y-4">
                   <div className="relative">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 block">Confirm Name</label>
-                    <input className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm font-medium" placeholder="Full Name" value={form.fullName} onChange={e => setForm({...form, fullName: e.target.value})} />
+                    <input className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm font-medium outline-none" placeholder="Full Name" value={form.fullName} onChange={e => setForm({...form, fullName: e.target.value})} />
                   </div>
                   <div className="relative">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 block">WhatsApp Number</label>
-                    <input className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm font-medium" placeholder="Phone" type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+                    <input className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm font-medium outline-none" placeholder="Phone" type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
                   </div>
                   <div className="relative">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1 block">Delivery Address</label>
-                    <textarea className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm font-medium" placeholder="Address" rows="3" value={form.address} onChange={e => setForm({...form, address: e.target.value})} />
+                    <textarea className="w-full p-4 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-orange-500 text-sm font-medium outline-none resize-none" placeholder="Address" rows="3" value={form.address} onChange={e => setForm({...form, address: e.target.value})} />
                   </div>
                 </div>
                 <div className="bg-orange-50 p-4 rounded-xl flex gap-3">
                   <i className="fas fa-info-circle text-orange-500 mt-1"></i>
-                  <p className="text-[11px] text-orange-800 font-medium">Auto-filled from your profile. Feel free to change it for this order.</p>
+                  <p className="text-[11px] text-orange-800 font-medium">Please confirm your final delivery address above.</p>
                 </div>
-                <button disabled={!isValid} onClick={() => setStep(2)} className={`w-full py-4 rounded-2xl font-black shadow-lg transition-all ${isValid ? 'bg-orange-600 text-white active:scale-95' : 'bg-gray-100 text-gray-300'}`}>CONTINUE TO PAYMENT</button>
+                <button disabled={!isValid} onClick={() => setStep(2)} className={`w-full py-4 rounded-2xl font-black shadow-lg transition-all active:scale-95 ${isValid ? 'bg-orange-600 text-white shadow-orange-100' : 'bg-gray-100 text-gray-300'}`}>CONTINUE TO PAYMENT</button>
               </div>
             ) : (
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <button onClick={() => setForm({...form, payment: 'qr'})} className={`w-full p-5 rounded-2xl border-2 flex items-center gap-4 transition-all ${form.payment === 'qr' ? 'border-orange-500 bg-orange-50' : 'border-transparent bg-gray-50'}`}>
+                  <button onClick={() => setForm({...form, payment: 'qr'})} className={`w-full p-5 rounded-2xl border-2 flex items-center gap-4 transition-all active:scale-95 ${form.payment === 'qr' ? 'border-orange-500 bg-orange-50 shadow-md shadow-orange-50' : 'border-transparent bg-gray-50'}`}>
                     <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-orange-600 shadow-sm"><i className="fas fa-qrcode"></i></div>
                     <div className="text-left"><p className="font-black text-sm text-gray-900">UPI Scan & Pay</p><p className="text-[10px] text-gray-500">Pay ₹{grandTotal}</p></div>
                   </button>
-                  <button onClick={() => setForm({...form, payment: 'cod'})} className={`w-full p-5 rounded-2xl border-2 flex items-center gap-4 transition-all ${form.payment === 'cod' ? 'border-orange-500 bg-orange-50' : 'border-transparent bg-gray-50'}`}>
+                  <button onClick={() => setForm({...form, payment: 'cod'})} className={`w-full p-5 rounded-2xl border-2 flex items-center gap-4 transition-all active:scale-95 ${form.payment === 'cod' ? 'border-orange-500 bg-orange-50 shadow-md shadow-orange-50' : 'border-transparent bg-gray-50'}`}>
                     <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-500 shadow-sm"><i className="fas fa-money-bill-wave"></i></div>
                     <div className="text-left"><p className="font-black text-sm text-gray-900">Cash on Delivery</p><p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Pay at Doorstep</p></div>
                   </button>
@@ -547,7 +585,16 @@
           localStorage.setItem('ramdev_profile', JSON.stringify(updatedProfile));
 
           const orderId = 'ORD-' + Date.now();
-          const newOrder = { id: orderId, date: new Date().toISOString(), items: [...cart], subtotal, platformFee, deliveryCharge, grandTotal, details: details };
+          const newOrder = { 
+            id: orderId, 
+            date: new Date().toISOString(), 
+            items: [...cart], 
+            subtotal, 
+            platformFee, 
+            deliveryCharge, 
+            grandTotal, 
+            details: details 
+          };
           const updatedOrders = [newOrder, ...pastOrders];
           setPastOrders(updatedOrders);
           localStorage.setItem('ramdev_past_orders', JSON.stringify(updatedOrders));
@@ -603,7 +650,7 @@
               <main role="main" className="flex-1 pt-20 pb-28 px-4 fade-in">
                 <nav className="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2">
                   {['All', 'Sweets', 'Cakes', 'Snacks'].map(cat => (
-                    <button key={cat} onClick={() => setCategory(cat)} className={`px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-sm whitespace-nowrap transition-all ${category === cat ? 'bg-orange-600 text-white shadow-orange-100' : 'bg-white text-orange-900 border border-orange-100'}`}>{cat}</button>
+                    <button key={cat} onClick={() => setCategory(cat)} className={`px-5 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-sm whitespace-nowrap transition-all active:scale-95 ${category === cat ? 'bg-orange-600 text-white shadow-orange-100' : 'bg-white text-orange-900 border border-orange-100'}`}>{cat}</button>
                   ))}
                 </nav>
                 <div className="product-grid">
@@ -615,7 +662,7 @@
                 </div>
               </main>
               {cart.length > 0 && (
-                <div className="fixed bottom-6 left-4 right-4 z-40 max-w-[calc(448px-2rem)] mx-auto">
+                <div className="fixed bottom-6 left-4 right-4 z-40 max-w-[calc(448px-2rem)] mx-auto animate-fadeIn">
                   <button onClick={() => setView('cart')} className="w-full bg-orange-600 text-white font-black py-4 rounded-2xl shadow-2xl flex justify-between px-6 items-center border-4 border-white/20 active:scale-[0.97] transition-transform">
                     <span className="flex items-center gap-2 text-xs uppercase tracking-widest font-black"><i className="fas fa-shopping-basket"></i> {cartCount} Items</span>
                     <span className="text-sm font-black tracking-tight">₹{grandTotal} <i className="fas fa-chevron-right ml-1 text-[10px]"></i></span>
