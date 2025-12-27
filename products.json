@@ -3,10 +3,10 @@
     "id": "1",
     "name": "Bastasha",
     "description": "Traditional sugar drops, airy and sweet.",
-    "price": 50,
+    "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "batasha.jpg"
+    "image": "images/Sweets/batasha.jpg"
   },
   {
     "id": "2",
@@ -15,16 +15,16 @@
     "price": 50,
     "weight": "250g",
     "category": "Sweets",
-    "image": "motichoor.jpg"
+    "image": "images/Sweets/motichoor.jpg"
   },
   {
     "id": "3",
-    "name": "Basin Ladoo",
+    "name": "Ladoo",
     "description": "Classic sweet balls made with high-quality ingredients.",
-    "price": 60,
+    "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "ladoo.jpg"
+    "image": "images/Sweets/ladoo.jpg"
   },
   {
     "id": "4",
@@ -33,7 +33,7 @@
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "malai_barfi.jpg"
+    "image": "images/Sweets/malai_barfi.jpg"
   },
   {
     "id": "5",
@@ -42,7 +42,7 @@
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "peda2.jpg"
+    "image": "images/Sweets/peda2.jpg"
   },
   {
     "id": "6",
@@ -51,7 +51,7 @@
     "price": 200,
     "weight": "250g",
     "category": "Sweets",
-    "image": "kajukatli.jpg"
+    "image": "images/Sweets/kajukatli.jpg"
   },
   {
     "id": "7",
@@ -60,7 +60,7 @@
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "yellow_peda.jpg"
+    "image": "images/Sweets/yellow_peda.jpg"
   },
   {
     "id": "8",
@@ -69,33 +69,33 @@
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "peda.jpg"
+    "image": "images/Sweets/peda2.jpg"
   },
   {
     "id": "9",
-    "name": "Milk Cake",
+    "name": "Mysore Pak",
     "description": "Gram flour and ghee based sweet with a porous texture.",
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "mysore_pak.jpg"
+    "image": "images/Sweets/mysore_pak.jpg"
   },
   {
     "id": "10",
     "name": "Thumbs Up",
     "description": "Refreshing Thumbs Up cola beverage.",
-    "price": 100,
-    "weight": "2.25L",
+    "price": 40,
+    "weight": "250ml",
     "category": "Drinks",
-    "image": "thumbsup.jpg"
+    "image": "images/Drinks/thumbsup.jpg"
   },
   {
     "id": "11",
     "name": "Coke",
     "description": "Classic Coca-Cola chilled beverage.",
-    "price": 100,
-    "weight": "2.25L",
+    "price": 40,
+    "weight": "250ml",
     "category": "Drinks",
-    "image": "coke.jpg"
+    "image": "images/Drinks/coke.jpg"
   }
 ]
