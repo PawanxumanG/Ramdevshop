@@ -6,7 +6,7 @@
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "images/Sweets/batasha.jpg"
+    "image": "batasha.jpg"
   },
   {
     "id": "2",
@@ -15,16 +15,16 @@
     "price": 50,
     "weight": "250g",
     "category": "Sweets",
-    "image": "images/Sweets/motichoor.jpg"
+    "image": "motichoor.jpg"
   },
   {
     "id": "3",
     "name": "Ladoo",
     "description": "Classic sweet balls made with high-quality ingredients.",
-    "price": 100,
+    "price": 60,
     "weight": "250g",
     "category": "Sweets",
-    "image": "images/Sweets/ladoo.jpg"
+    "image": "ladoo.jpg"
   },
   {
     "id": "4",
@@ -33,7 +33,7 @@
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "images/Sweets/malai_barfi.jpg"
+    "image": "malai_barfi.jpg"
   },
   {
     "id": "5",
@@ -42,7 +42,7 @@
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "images/Sweets/peda2.jpg"
+    "image": "peda2.jpg"
   },
   {
     "id": "6",
@@ -51,7 +51,7 @@
     "price": 200,
     "weight": "250g",
     "category": "Sweets",
-    "image": "images/Sweets/kajukatli.jpg"
+    "image": "kajukatli.jpg"
   },
   {
     "id": "7",
@@ -60,7 +60,7 @@
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "images/Sweets/yellow_peda.jpg"
+    "image": "yellow_peda.jpg"
   },
   {
     "id": "8",
@@ -69,33 +69,42 @@
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "images/Sweets/peda2.jpg"
+    "image": "peda.jpg"
   },
   {
     "id": "9",
-    "name": "Mysore Pak",
+    "name": "Milk Cake",
     "description": "Gram flour and ghee based sweet with a porous texture.",
     "price": 100,
     "weight": "250g",
     "category": "Sweets",
-    "image": "images/Sweets/mysore_pak.jpg"
+    "image": "mysore_pak.jpg"
   },
   {
     "id": "10",
-    "name": "Thumbs Up",
-    "description": "Refreshing Thumbs Up cola beverage.",
-    "price": 40,
-    "weight": "250ml",
-    "category": "Drinks",
-    "image": "images/Drinks/thumbsup.jpg"
+    "name": "Milk Cake Brown",
+    "description": "Gram flour and ghee based sweet with a porous texture.",
+    "price": 100,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "milk_cake.jpg"
   },
   {
     "id": "11",
+    "name": "Thumbs Up",
+    "description": "Refreshing Thumbs Up cola beverage.",
+    "price": 100,
+    "weight": "2.25L",
+    "category": "Drinks",
+    "image": "thumbsup.jpg"
+  },
+  {
+    "id": "12",
     "name": "Coke",
     "description": "Classic Coca-Cola chilled beverage.",
-    "price": 40,
-    "weight": "250ml",
+    "price": 100,
+    "weight": "2.25L",
     "category": "Drinks",
-    "image": "images/Drinks/coke.jpg"
+    "image": "coke.jpg"
   }
 ]
