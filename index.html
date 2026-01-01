@@ -12,7 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
-    <!-- Babel Standalone for JSX in browser -->
+    <!-- Babel Standalone for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -49,23 +49,24 @@
         animation: spin 0.8s linear infinite;
       }
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-      
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      
       .fade-in { animation: fadeIn 0.3s ease-in-out; }
       @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
       .animate-slideUp { animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1); }
       @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-      
       .shadow-soft { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); }
-
-      /* Dynamic Utilities */
       .bg-primary { background-color: var(--primary) !important; }
       .text-primary { color: var(--primary) !important; }
       .border-primary { border-color: var(--primary) !important; }
-      .bg-secondary { background-color: var(--secondary) !important; }
+      
+      /* Toggle Switch CSS */
+      .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+      .switch input { opacity: 0; width: 0; height: 0; }
+      .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e2e8f0; transition: .4s; border-radius: 24px; }
+      .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+      input:checked + .slider { background-color: var(--primary); }
+      input:checked + .slider:before { transform: translateX(20px); }
     </style>
     <script type="importmap">
 {
@@ -77,17 +78,6 @@
   }
 }
 </script>
-    <script>
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          const loader = document.getElementById('loader');
-          if (loader) {
-            loader.style.opacity = '0';
-            setTimeout(() => loader.remove(), 400);
-          }
-        }, 5000);
-      });
-    </script>
   </head>
   <body>
     <div id="loader" role="status">
@@ -100,17 +90,45 @@
       import React, { useState, useEffect, useMemo } from 'react';
       import { createRoot } from 'react-dom/client';
 
-      /** --- CONSTANTS & DEFAULTS --- **/
       const ADMIN_PASSWORD = "Pawan1645@";
 
       const INITIAL_PRODUCTS = [
-        { id: "1", name: "Bastasha", description: "Traditional sugar drops, airy and sweet.", price: 50, weight: "250g", category: "Sweets", image: "batasha.jpg" },
-        { id: "2", name: "Motichoor", description: "Tiny pearls of gram flour fried in pure ghee.", price: 50, weight: "250g", category: "Sweets", image: "motichoor.jpg" },
-        { id: "3", name: "Ladoo", description: "Classic sweet balls made with high-quality ingredients.", price: 60, weight: "250g", category: "Sweets", image: "ladoo.jpg" },
-        { id: "4", name: "Malai Barfi", description: "Rich, creamy milk fudge with a soft texture.", price: 100, weight: "250g", category: "Sweets", image: "malai_barfi.jpg" },
-        { id: "10", name: "Milk Cake", description: "Gram flour and ghee based sweet with a porous texture.", price: 100, weight: "250g", category: "Sweets", image: "milk_cake.jpg" },
-        { id: "11", name: "Black Forest", description: "Premium black forest chocolate cake.", price: 600, weight: "1KG", category: "Cakes", image: "black_forest.jpg" }
+        { id: "1", name: "Bastasha", description: "Traditional sugar drops, airy and sweet.", price: 50, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1589119634709-02334005b871?auto=format&fit=crop&q=80&w=400" },
+        { id: "2", name: "Motichoor", description: "Tiny pearls of gram flour fried in pure ghee.", price: 50, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1626082866704-281c59833756?auto=format&fit=crop&q=80&w=400" },
+        { id: "3", name: "Ladoo", description: "Classic sweet balls made with high-quality ingredients.", price: 60, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1621447508323-271228a7fd80?auto=format&fit=crop&q=80&w=400" },
+        { id: "4", name: "Malai Barfi", description: "Rich, creamy milk fudge with a soft texture.", price: 100, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1605065539334-0370428a2729?auto=format&fit=crop&q=80&w=400" },
+        { id: "5", name: "Milk Cake", description: "Gram flour and ghee based sweet with a porous texture.", price: 100, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1621447508323-271228a7fd80?auto=format&fit=crop&q=80&w=400" },
+        { id: "6", name: "Milk Cake Brown", description: "Perfectly caramelized milk cake with rich taste.", price: 100, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1589119634709-02334005b871?auto=format&fit=crop&q=80&w=400" },
+        { id: "7", name: "Yellow Peda", description: "Saffron infused milk fudge traditional peda.", price: 100, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1626082866704-281c59833756?auto=format&fit=crop&q=80&w=400" },
+        { id: "8", name: "Peda", description: "Classic creamy white peda made from pure milk.", price: 100, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1621447508323-271228a7fd80?auto=format&fit=crop&q=80&w=400" },
+        { id: "9", name: "Barfi", description: "Pure milk solids processed into smooth fudge.", price: 100, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1605065539334-0370428a2729?auto=format&fit=crop&q=80&w=400" },
+        { id: "10", name: "Kaju Katli", description: "Cashew fudge made with real silver leaf.", price: 200, weight: "250g", category: "Sweets", image: "https://images.unsplash.com/photo-1621447508323-271228a7fd80?auto=format&fit=crop&q=80&w=400" },
+        { id: "11", name: "Black Forest", description: "Delicious dark chocolate and cream layered cake.", price: 600, weight: "1KG", category: "Cakes", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&q=80&w=400" },
+        { id: "12", name: "Thumbs up", description: "Strong and fizzy Indian cola beverage.", price: 95, weight: "750ml", category: "Drinks", image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&q=80&w=400" },
+        { id: "13", name: "coke", description: "The original refreshing classic cola.", price: 95, weight: "750ml", category: "Drinks", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=400" }
       ];
+
+      const DEFAULT_HOME_CONTENT = {
+        banner: {
+          show: true,
+          title: "Buy 1KG Sweets\nGet 250g FREE!",
+          subtitle: "Festival Special",
+          footer: "Valid on Bastasha & Motichoor",
+          image: "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?auto=format&fit=crop&q=80&w=800"
+        },
+        quote: {
+          show: true,
+          text: "\"Sweetness is the universal language of love. Let every bite bring a smile to your heart.\"",
+          author: "RamDev Specials"
+        },
+        note: {
+          show: true,
+          title: "Note from Owner",
+          text: "\"At RamDev Shop, purity is our religion. Every batch of sweets is prepared using 100% pure desi ghee and handpicked ingredients, just the way it was done generations ago. We invite you to taste the tradition.\"",
+          ownerName: "Pawan Ponnam",
+          ownerTitle: "Master Confectioner"
+        }
+      };
 
       const DEFAULT_SETTINGS = {
         appName: "RamDev Shop",
@@ -118,51 +136,37 @@
         platformFee: 1,
         deliveryFee: 10,
         ownerWhatsApp: "918369258002",
-        upiId: "paytmqr62rtez@ptys",
+        upiId: "pawanponnam-1@okicici",
         theme: {
           primary: "#ea580c",
           secondary: "#9a3412",
           background: "#fffaf0"
-        }
+        },
+        homeContent: DEFAULT_HOME_CONTENT
       };
 
-      /** --- UTILS --- **/
       const generateInvoicePDF = (order, shopName) => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
-        // Header
         doc.setFontSize(24);
-        doc.setTextColor(234, 88, 12); // Primary orange
+        doc.setTextColor(234, 88, 12);
         doc.text(shopName.toUpperCase(), 20, 25);
-        
         doc.setFontSize(10);
         doc.setTextColor(100);
         doc.text(`INVOICE ID: #RD-${order.id.slice(-6).toUpperCase()}`, 20, 35);
         doc.text(`DATE: ${new Date(order.date).toLocaleString()}`, 20, 40);
-        
-        // Customer Section
         doc.setFillColor(249, 250, 251);
         doc.rect(20, 50, 170, 30, 'F');
         doc.setFontSize(12);
         doc.setTextColor(0);
         doc.setFont("helvetica", "bold");
         doc.text("CUSTOMER DETAILS", 25, 58);
-        
         doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
         doc.text(`Name: ${order.profile.fullName}`, 25, 65);
         doc.text(`Phone: ${order.profile.phone}`, 25, 70);
         doc.text(`Address: ${order.profile.address}`, 25, 75, { maxWidth: 160 });
-        
-        // Table
-        const tableData = order.cart.map((item) => [
-          item.name, 
-          `x${item.quantity}`, 
-          `Rs. ${item.price}`, 
-          `Rs. ${item.price * item.quantity}`
-        ]);
-        
+        const tableData = order.cart.map((item) => [item.name, `x${item.quantity}`, `Rs. ${item.price}`, `Rs. ${item.price * item.quantity}`]);
         doc.autoTable({
           startY: 90,
           head: [['Product', 'Qty', 'Unit Price', 'Total']],
@@ -172,42 +176,26 @@
           alternateRowStyles: { fillColor: [255, 250, 240] },
           styles: { fontSize: 9, cellPadding: 5 }
         });
-        
         const finalY = (doc.lastAutoTable.finalY || 90) + 15;
-        
-        // Totals
         const summaryX = 140;
         doc.setFontSize(10);
         doc.setTextColor(100);
         doc.text(`Subtotal:`, summaryX, finalY);
         doc.text(`Rs. ${order.cartTotal}`, 185, finalY, { align: 'right' });
-        
         doc.text(`Platform Fee:`, summaryX, finalY + 7);
         doc.text(`Rs. ${order.platformFee || 0}`, 185, finalY + 7, { align: 'right' });
-        
         doc.text(`Delivery Fee:`, summaryX, finalY + 14);
         doc.text(`Rs. ${order.deliveryFee || 0}`, 185, finalY + 14, { align: 'right' });
-        
-        // Grand Total Line
         doc.setDrawColor(234, 88, 12);
         doc.setLineWidth(0.5);
         doc.line(summaryX, finalY + 18, 190, finalY + 18);
-        
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(234, 88, 12);
         doc.text(`GRAND TOTAL:`, summaryX, finalY + 28);
         doc.text(`Rs. ${order.totalWithFees}`, 185, finalY + 28, { align: 'right' });
-        
-        // Footer
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text("Thank you for shopping with RamDev Shop!", 105, 280, { align: 'center' });
-        
         doc.save(`${shopName}_Invoice_${order.id.slice(-4)}.pdf`);
       };
-
-      /** --- COMPONENTS --- **/
 
       const AdminDashboard = ({ appData, onUpdateAppData, onBack }) => {
         const [activeTab, setActiveTab] = useState('products');
@@ -219,27 +207,35 @@
 
         const syncToGithub = async () => {
           if (!ghToken || !ghRepo) return alert("Please set GitHub credentials.");
-          setIsSyncing(true);
-          setSyncMessage('Syncing...');
+          setIsSyncing(true); setSyncMessage('Syncing...');
           try {
             const url = `https://api.github.com/repos/${ghRepo}/contents/products.json`;
             const headers = { 'Authorization': `token ${ghToken}`, 'Accept': 'application/vnd.github.v3+json' };
             const getRes = await fetch(url, { headers });
-            let sha = "";
-            if (getRes.ok) sha = (await getRes.json()).sha;
+            let sha = getRes.ok ? (await getRes.json()).sha : "";
             const content = btoa(unescape(encodeURIComponent(JSON.stringify(appData, null, 2))));
-            const putRes = await fetch(url, {
-              method: 'PUT',
-              headers,
-              body: JSON.stringify({ message: `Admin update: ${new Date().toLocaleString()}`, content, sha: sha || undefined })
-            });
+            const putRes = await fetch(url, { method: 'PUT', headers, body: JSON.stringify({ message: `Update: ${new Date().toLocaleString()}`, content, sha: sha || undefined }) });
             if (!putRes.ok) throw new Error('Sync failed.');
-            localStorage.setItem('gh_token', ghToken);
-            localStorage.setItem('gh_repo', ghRepo);
-            setSyncMessage('SUCCESS!');
-            setTimeout(() => setSyncMessage(''), 3000);
+            localStorage.setItem('gh_token', ghToken); localStorage.setItem('gh_repo', ghRepo);
+            setSyncMessage('SUCCESS!'); setTimeout(() => setSyncMessage(''), 3000);
           } catch (err) { alert(err.message); setSyncMessage('Failed'); } 
           finally { setIsSyncing(false); }
+        };
+
+        const updateHomeContent = (section, key, value) => {
+          onUpdateAppData({
+            ...appData,
+            settings: {
+              ...appData.settings,
+              homeContent: {
+                ...appData.settings.homeContent,
+                [section]: {
+                  ...appData.settings.homeContent[section],
+                  [key]: value
+                }
+              }
+            }
+          });
         };
 
         return (
@@ -250,8 +246,8 @@
             </div>
             
             <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2">
-              {['products', 'categories', 'settings', 'sync'].map(tab => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-primary text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100'}`}>{tab}</button>
+              {['products', 'home ui', 'categories', 'settings', 'sync'].map(tab => (
+                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex-shrink-0 ${activeTab === tab ? 'bg-primary text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100'}`}>{tab}</button>
               ))}
             </div>
 
@@ -259,16 +255,63 @@
               <div className="space-y-4">
                 <button onClick={() => setEditingProduct({ id: '', name: '', price: 0, weight: '', category: appData.categories[0], image: '', description: '', isNew: true })} className="w-full py-4 bg-primary text-white rounded-2xl font-black shadow-lg uppercase text-xs tracking-widest">ADD ITEM</button>
                 <div className="space-y-3">
-                  {appData.products.map((p) => (
+                  {appData.products.map(p => (
                     <div key={p.id} className="bg-white p-4 rounded-2xl border flex items-center gap-4 shadow-sm">
-                      <img src={p.image} className="w-14 h-14 object-cover rounded-xl bg-gray-100" onError={(e)=>e.target.src='https://via.placeholder.com/100?text=Sweet'} />
+                      <img src={p.image} className="w-14 h-14 object-cover rounded-xl bg-gray-100" onError={e=>e.target.src='https://via.placeholder.com/100?text=Sweet'} />
                       <div className="flex-1"><h4 className="font-bold text-sm text-gray-900">{p.name}</h4><p className="text-[10px] text-gray-400 font-bold uppercase">₹{p.price} • {p.category}</p></div>
                       <div className="flex gap-2">
                         <button onClick={() => setEditingProduct(p)} className="w-9 h-9 bg-orange-50 text-primary rounded-xl flex items-center justify-center"><i className="fas fa-pen text-[11px]"></i></button>
-                        <button onClick={() => { if(confirm('Delete?')) onUpdateAppData({...appData, products: appData.products.filter((i) => i.id !== p.id)}); }} className="w-9 h-9 bg-red-50 text-red-600 rounded-xl flex items-center justify-center"><i className="fas fa-trash text-[11px]"></i></button>
+                        <button onClick={() => { if(confirm('Delete?')) onUpdateAppData({...appData, products: appData.products.filter(i => i.id !== p.id)}); }} className="w-9 h-9 bg-red-50 text-red-600 rounded-xl flex items-center justify-center"><i className="fas fa-trash text-[11px]"></i></button>
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'home ui' && (
+              <div className="space-y-8">
+                {/* Banner Section */}
+                <div className="bg-white p-6 rounded-[32px] border space-y-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Offer Banner</h3>
+                    <label className="switch">
+                      <input type="checkbox" checked={appData.settings.homeContent.banner.show} onChange={e => updateHomeContent('banner', 'show', e.target.checked)} />
+                      <span className="slider"></span>
+                    </label>
+                  </div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Title (Banner Main Text)</label><textarea className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none h-20" value={appData.settings.homeContent.banner.title} onChange={e => updateHomeContent('banner', 'title', e.target.value)} /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Subtitle (Top Badge)</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none" value={appData.settings.homeContent.banner.subtitle} onChange={e => updateHomeContent('banner', 'subtitle', e.target.value)} /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Footer (Small Text)</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none" value={appData.settings.homeContent.banner.footer} onChange={e => updateHomeContent('banner', 'footer', e.target.value)} /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Banner Image URL</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none" value={appData.settings.homeContent.banner.image} onChange={e => updateHomeContent('banner', 'image', e.target.value)} /></div>
+                </div>
+
+                {/* Quote Section */}
+                <div className="bg-white p-6 rounded-[32px] border space-y-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Daily Quote</h3>
+                    <label className="switch">
+                      <input type="checkbox" checked={appData.settings.homeContent.quote.show} onChange={e => updateHomeContent('quote', 'show', e.target.checked)} />
+                      <span className="slider"></span>
+                    </label>
+                  </div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Quote Text</label><textarea className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none h-24 italic" value={appData.settings.homeContent.quote.text} onChange={e => updateHomeContent('quote', 'text', e.target.value)} /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Quote Author</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none" value={appData.settings.homeContent.quote.author} onChange={e => updateHomeContent('quote', 'author', e.target.value)} /></div>
+                </div>
+
+                {/* Owner Note Section */}
+                <div className="bg-white p-6 rounded-[32px] border space-y-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Owner's Note</h3>
+                    <label className="switch">
+                      <input type="checkbox" checked={appData.settings.homeContent.note.show} onChange={e => updateHomeContent('note', 'show', e.target.checked)} />
+                      <span className="slider"></span>
+                    </label>
+                  </div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Note Title</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none" value={appData.settings.homeContent.note.title} onChange={e => updateHomeContent('note', 'title', e.target.value)} /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Note Text</label><textarea className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none h-32" value={appData.settings.homeContent.note.text} onChange={e => updateHomeContent('note', 'text', e.target.value)} /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Owner Name</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none" value={appData.settings.homeContent.note.ownerName} onChange={e => updateHomeContent('note', 'ownerName', e.target.value)} /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 block">Owner Title</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none" value={appData.settings.homeContent.note.ownerTitle} onChange={e => updateHomeContent('note', 'ownerTitle', e.target.value)} /></div>
                 </div>
               </div>
             )}
@@ -290,25 +333,13 @@
             {activeTab === 'settings' && (
               <div className="bg-white p-8 rounded-[40px] shadow-soft border space-y-8 text-left">
                 <div className="space-y-4">
-                  <h3 className="text-xs font-black text-primary uppercase tracking-widest">Brand & Colors</h3>
-                  <div>
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">App Name</label>
-                    <input type="text" className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-gray-800" value={appData.settings.appName} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, appName: e.target.value}})} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">Primary Color</label><input type="color" className="w-full h-12 p-1 bg-gray-50 rounded-xl cursor-pointer" value={appData.settings.theme.primary} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, theme: {...appData.settings.theme, primary: e.target.value}}})} /></div>
-                    <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">Secondary Color</label><input type="color" className="w-full h-12 p-1 bg-gray-50 rounded-xl cursor-pointer" value={appData.settings.theme.secondary} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, theme: {...appData.settings.theme, secondary: e.target.value}}})} /></div>
-                  </div>
-                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">App Background</label><input type="color" className="w-full h-12 p-1 bg-gray-50 rounded-xl cursor-pointer" value={appData.settings.theme.background} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, theme: {...appData.settings.theme, background: e.target.value}}})} /></div>
-                </div>
-
-                <div className="space-y-4 pt-6 border-t">
                   <h3 className="text-xs font-black text-primary uppercase tracking-widest">Shop Config</h3>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">App Name</label><input type="text" className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-gray-800" value={appData.settings.appName} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, appName: e.target.value}})} /></div>
                   <div className="grid grid-cols-2 gap-4">
                     <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">Platform Fee (₹)</label><input type="number" className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold" value={appData.settings.platformFee} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, platformFee: parseInt(e.target.value) || 0}})} /></div>
                     <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">Delivery Fee (₹)</label><input type="number" className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold" value={appData.settings.deliveryFee} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, deliveryFee: parseInt(e.target.value) || 0}})} /></div>
                   </div>
-                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">Min Order for Free Delivery (₹)</label><input type="number" className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold" value={appData.settings.minOrder} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, minOrder: parseInt(e.target.value) || 0}})} /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">Min Order (₹)</label><input type="number" className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold" value={appData.settings.minOrder} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, minOrder: parseInt(e.target.value) || 0}})} /></div>
                   <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">Owner WhatsApp</label><input type="text" className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-gray-800" value={appData.settings.ownerWhatsApp} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, ownerWhatsApp: e.target.value}})} /></div>
                   <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-2">UPI ID</label><input type="text" className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-gray-800" value={appData.settings.upiId} onChange={e => onUpdateAppData({...appData, settings: {...appData.settings, upiId: e.target.value}})} /></div>
                 </div>
@@ -317,9 +348,9 @@
 
             {activeTab === 'sync' && (
               <div className="bg-white p-8 rounded-[40px] shadow-soft border space-y-4">
-                <input className="w-full p-4 bg-gray-50 rounded-2xl outline-none text-xs font-mono" placeholder="GitHub PAT Token" value={ghToken} onChange={e => setGhToken(e.target.value)} />
+                <input className="w-full p-4 bg-gray-50 rounded-2xl outline-none text-xs font-mono" placeholder="GitHub Token" value={ghToken} onChange={e => setGhToken(e.target.value)} />
                 <input className="w-full p-4 bg-gray-50 rounded-2xl outline-none text-xs font-mono" placeholder="User/Repo" value={ghRepo} onChange={e => setGhRepo(e.target.value)} />
-                <button disabled={isSyncing} onClick={syncToGithub} className="w-full py-5 bg-primary text-white rounded-2xl font-black shadow-xl uppercase tracking-widest text-sm active:scale-95 transition-all">{syncMessage || 'PUSH TO GITHUB'}</button>
+                <button disabled={isSyncing} onClick={syncToGithub} className="w-full py-5 bg-primary text-white rounded-2xl font-black shadow-xl uppercase tracking-widest text-sm">{syncMessage || 'PUSH TO GITHUB'}</button>
               </div>
             )}
 
@@ -328,22 +359,23 @@
                 <div className="bg-white w-full max-w-md rounded-t-[40px] p-8 animate-slideUp overflow-y-auto max-h-[90vh]">
                   <h3 className="text-xl font-black mb-8 uppercase text-gray-900 tracking-tighter">{editingProduct.isNew ? 'NEW' : 'EDIT'} PRODUCT</h3>
                   <div className="space-y-4 text-left">
-                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 block">NAME</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border" placeholder="Product Name" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} /></div>
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 block">NAME</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border" value={editingProduct.name} onChange={e => setEditingProduct({...editingProduct, name: e.target.value})} /></div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 block">PRICE (₹)</label><input type="number" className="w-full p-4 bg-gray-50 rounded-xl font-bold border" value={editingProduct.price} onChange={e => setEditingProduct({...editingProduct, price: parseInt(e.target.value) || 0})} /></div>
-                      <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 block">WEIGHT</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border" value={editingProduct.weight} onChange={e => setEditingProduct({...editingProduct, weight: e.target.value})} /></div>
+                      <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 block">PRICE (₹)</label><input type="number" className="w-full p-4 bg-gray-50 rounded-xl font-bold border" value={editingProduct.price} onChange={e => setEditingProduct({...editingProduct, price: parseInt(e.target.value) || 0})} /></div>
+                      <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 block">WEIGHT</label><input className="w-full p-4 bg-gray-50 rounded-xl font-bold border" value={editingProduct.weight} onChange={e => setEditingProduct({...editingProduct, weight: e.target.value})} /></div>
                     </div>
-                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 block">CATEGORY</label><select className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none" value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}>
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 block">CATEGORY</label><select className="w-full p-4 bg-gray-50 rounded-xl font-bold border outline-none" value={editingProduct.category} onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}>
                       {appData.categories.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select></div>
-                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 ml-1 block">IMAGE URL</label><input className="w-full p-4 bg-gray-50 rounded-xl font-mono text-xs border" value={editingProduct.image} onChange={e => setEditingProduct({...editingProduct, image: e.target.value})} /></div>
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 block">IMAGE URL</label><input className="w-full p-4 bg-gray-50 rounded-xl font-mono text-xs border" value={editingProduct.image} onChange={e => setEditingProduct({...editingProduct, image: e.target.value})} /></div>
+                    <div><label className="text-[10px] font-black text-gray-400 uppercase mb-1 block">DESCRIPTION</label><textarea className="w-full p-4 bg-gray-50 rounded-xl font-medium border h-24" placeholder="About this product..." value={editingProduct.description} onChange={e => setEditingProduct({...editingProduct, description: e.target.value})} /></div>
                     <div className="pt-6 flex gap-3">
-                      <button onClick={() => setEditingProduct(null)} className="flex-1 py-4 bg-gray-100 text-gray-400 rounded-2xl font-black uppercase text-xs tracking-widest">Cancel</button>
+                      <button onClick={() => setEditingProduct(null)} className="flex-1 py-4 bg-gray-100 text-gray-400 rounded-2xl font-black uppercase text-xs tracking-widest">CANCEL</button>
                       <button onClick={() => {
                         const newList = editingProduct.isNew ? [...appData.products, { ...editingProduct, id: Date.now().toString(), isNew: undefined }] : appData.products.map((p) => p.id === editingProduct.id ? editingProduct : p);
                         onUpdateAppData({...appData, products: newList});
                         setEditingProduct(null);
-                      }} className="flex-2 py-4 bg-primary text-white rounded-2xl font-black uppercase text-xs shadow-lg tracking-widest">Save</button>
+                      }} className="flex-2 py-4 bg-primary text-white rounded-2xl font-black uppercase text-xs shadow-lg tracking-widest">SAVE</button>
                     </div>
                   </div>
                 </div>
@@ -353,25 +385,10 @@
         );
       };
 
-      const AdminLogin = ({ onLogin, onBack }) => {
-        const [pass, setPass] = useState('');
-        return (
-          <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 fade-in text-center">
-            <div className="w-20 h-20 bg-orange-100 rounded-3xl mb-8 flex items-center justify-center text-primary text-3xl shadow-inner"><i className="fas fa-lock"></i></div>
-            <h1 className="text-3xl font-black mb-8 uppercase tracking-tighter text-gray-900 leading-none">STAFF ACCESS</h1>
-            <div className="w-full max-w-xs space-y-4">
-              <input type="password" placeholder="PIN" className="w-full p-5 bg-gray-50 rounded-2xl border text-center font-bold tracking-[0.5em] outline-none" value={pass} onChange={e => setPass(e.target.value)} onKeyPress={e => e.key === 'Enter' && (pass === ADMIN_PASSWORD ? onLogin() : alert('Wrong PIN!'))} />
-              <button onClick={() => pass === ADMIN_PASSWORD ? onLogin() : alert('Wrong PIN!')} className="w-full py-5 bg-primary text-white rounded-2xl font-black shadow-xl active:scale-95 transition-all uppercase tracking-widest text-sm">LOGIN</button>
-              <button onClick={onBack} className="text-gray-400 font-bold text-[10px] uppercase tracking-widest py-4">Back</button>
-            </div>
-          </div>
-        );
-      };
-
-      /** --- MAIN APP COMPONENT --- **/
       const App = () => {
-        const [view, setView] = useState('onboarding'); 
+        const [view, setView] = useState('home'); 
         const [isLoading, setIsLoading] = useState(true);
+        const [showAbout, setShowAbout] = useState(false);
         const [appData, setAppData] = useState({
           products: INITIAL_PRODUCTS,
           categories: ['Sweets', 'Cakes', 'Snacks', 'Drinks'],
@@ -387,62 +404,45 @@
         useEffect(() => {
           const init = async () => {
             try {
-              const savedData = localStorage.getItem('ramdev_v10_data');
-              if (savedData) setAppData(JSON.parse(savedData));
-
+              const savedData = localStorage.getItem('ramdev_v15_data');
+              if (savedData) {
+                const parsed = JSON.parse(savedData);
+                // Ensure homeContent exists for old data migrations
+                if (!parsed.settings.homeContent) parsed.settings.homeContent = DEFAULT_HOME_CONTENT;
+                setAppData(parsed);
+              }
               const res = await fetch('./products.json?v=' + Date.now());
               if (res.ok) {
                 const remote = await res.json();
-                setAppData((prev) => ({
-                  ...prev,
-                  ...remote,
-                  settings: { 
-                    ...prev.settings, 
-                    ...(remote.settings || {}), 
-                    theme: { ...prev.settings.theme, ...(remote.settings?.theme || {}) } 
-                  }
-                }));
-                if (remote.categories?.length > 0) setCategory(remote.categories[0]);
+                setAppData(prev => ({ ...prev, ...remote }));
               }
-            } catch (err) {
-              console.error("Init Error:", err);
-            } finally {
-              const storedProfile = localStorage.getItem('ramdev_profile_v10');
+            } catch (err) {} finally {
+              const storedProfile = localStorage.getItem('ramdev_profile_v15');
               if (storedProfile) { 
-                  const parsedProfile = JSON.parse(storedProfile);
-                  setProfile(parsedProfile); 
-                  setView('catalog'); 
+                setProfile(JSON.parse(storedProfile));
+                setView('home'); 
+              } else {
+                setView('onboarding');
               }
-              const storedOrders = localStorage.getItem('ramdev_orders_v10');
+              const storedOrders = localStorage.getItem('ramdev_orders_v15');
               if (storedOrders) setOrders(JSON.parse(storedOrders));
-              setIsLoading(false);
+              setTimeout(() => {
+                const loader = document.getElementById('loader');
+                if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
+                setIsLoading(false);
+              }, 800);
             }
           };
           init();
         }, []);
 
         useEffect(() => {
-          if (!isLoading) localStorage.setItem('ramdev_v10_data', JSON.stringify(appData));
-        }, [appData, isLoading]);
-
-        useEffect(() => {
-          if (appData.settings?.theme) {
+          if (!isLoading) {
+            localStorage.setItem('ramdev_v15_data', JSON.stringify(appData));
             const root = document.documentElement;
             root.style.setProperty('--primary', appData.settings.theme.primary);
-            root.style.setProperty('--secondary', appData.settings.theme.secondary);
-            root.style.setProperty('--app-bg', appData.settings.theme.background);
-            document.body.style.backgroundColor = appData.settings.theme.background;
-            const loaderText = document.getElementById('loader-text');
-            if (loaderText) loaderText.textContent = appData.settings.appName;
           }
-        }, [appData.settings.theme, appData.settings.appName]);
-
-        useEffect(() => {
-          if (!isLoading) {
-            const loader = document.getElementById('loader');
-            if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
-          }
-        }, [isLoading]);
+        }, [appData, isLoading]);
 
         const updateCart = (product, delta) => {
           setCart(prev => {
@@ -461,238 +461,282 @@
         const totalWithFees = cartTotal + (appData.settings.platformFee || 0) + deliveryFee;
 
         const handleOrderConfirm = () => {
-          const newOrder = { 
-            id: Date.now().toString(), 
-            date: new Date().toISOString(), 
-            cart: [...cart], 
-            cartTotal, 
-            platformFee: appData.settings.platformFee, 
-            deliveryFee, 
-            totalWithFees, 
-            profile, 
-            deliveryMethod, 
-            paymentMethod 
-          };
+          const newOrder = { id: Date.now().toString(), date: new Date().toISOString(), cart: [...cart], cartTotal, platformFee: appData.settings.platformFee, deliveryFee, totalWithFees, profile, deliveryMethod, paymentMethod };
           const updatedOrders = [newOrder, ...orders];
           setOrders(updatedOrders);
-          localStorage.setItem('ramdev_orders_v10', JSON.stringify(updatedOrders));
-          
+          localStorage.setItem('ramdev_orders_v15', JSON.stringify(updatedOrders));
           const msg = `🛍️ *${appData.settings.appName.toUpperCase()} ORDER*\n👤 *Customer:* ${profile.fullName}\n📞 *Phone:* ${profile.phone}\n📍 *Address:* ${profile.address}\n\n🍰 *Items:*\n${cart.map(i => `• ${i.name} (x${i.quantity}) - ₹${i.price * i.quantity}`).join('\n')}\n\n🔥 *Grand Total: ₹${totalWithFees}*`;
           window.location.href = `https://api.whatsapp.com/send?phone=${appData.settings.ownerWhatsApp}&text=${encodeURIComponent(msg)}`;
-          
-          setCart([]); 
-          setView('orders');
+          setCart([]); setView('orders');
         };
 
         if (isLoading) return null;
-        if (view === 'admin_login') return <AdminLogin onLogin={() => setView('admin_panel')} onBack={() => setView('catalog')} />;
-        if (view === 'admin_panel') return <AdminDashboard appData={appData} onUpdateAppData={setAppData} onBack={() => setView('catalog')} />;
+
+        if (view === 'admin_login') return (
+          <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 text-center">
+            <h1 className="text-3xl font-black mb-8 uppercase tracking-tighter">STAFF ACCESS</h1>
+            <input type="password" id="admin-pin" placeholder="PIN" className="w-full p-5 bg-gray-50 rounded-2xl border text-center font-bold tracking-[0.5em] mb-4 outline-none" />
+            <button onClick={() => {
+              const pin = document.getElementById('admin-pin').value;
+              if (pin === ADMIN_PASSWORD) setView('admin_panel'); else alert('Wrong PIN!');
+            }} className="w-full py-5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl">LOGIN</button>
+            <button onClick={() => setView('home')} className="mt-8 text-gray-400 font-bold uppercase text-xs">Cancel</button>
+          </div>
+        );
+
+        if (view === 'admin_panel') return <AdminDashboard appData={appData} onUpdateAppData={setAppData} onBack={() => setView('home')} />;
 
         if (view === 'onboarding') return (
           <div className="min-h-screen bg-white p-10 flex flex-col items-center justify-center text-center fade-in">
             <div className="w-24 h-24 bg-primary rounded-[32px] flex items-center justify-center text-white text-4xl shadow-xl mb-10"><i className="fas fa-cookie-bite"></i></div>
             <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter text-gray-900 leading-none">{appData.settings.appName}</h1>
             <div className="space-y-6 w-full max-w-xs text-left">
-              <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-1">FULL NAME</label><input className="w-full p-4 bg-gray-50 rounded-2xl border outline-none font-bold" defaultValue={profile?.fullName || ''} placeholder="Your Name" id="reg-name" /></div>
-              <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-1">WHATSAPP NUMBER</label><input className="w-full p-4 bg-gray-50 rounded-2xl border outline-none font-bold" defaultValue={profile?.phone || ''} placeholder="10 Digits" id="reg-phone" type="tel" /></div>
-              <div><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-1">ADDRESS</label><textarea className="w-full p-4 bg-gray-50 rounded-2xl border outline-none font-bold" defaultValue={profile?.address || ''} placeholder="Full Delivery Address" id="reg-address" rows={3} /></div>
-              <div className="flex flex-col gap-3">
-                  <button onClick={() => {
-                  const p = { fullName: (document.getElementById('reg-name')).value, phone: (document.getElementById('reg-phone')).value, address: (document.getElementById('reg-address')).value };
-                  if (p.fullName && p.phone && p.address) { setProfile(p); localStorage.setItem('ramdev_profile_v10', JSON.stringify(p)); setView('catalog'); }
-                  }} className="w-full py-5 bg-primary text-white rounded-2xl font-black shadow-xl tracking-widest text-sm uppercase">Save & Shop</button>
-                  {profile && <button onClick={() => setView('catalog')} className="w-full py-4 bg-gray-50 text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest">Back to Menu</button>}
-              </div>
+              <input className="w-full p-4 bg-gray-50 rounded-2xl border outline-none font-bold" defaultValue={profile?.fullName || ''} placeholder="Your Name" id="reg-name" />
+              <input className="w-full p-4 bg-gray-50 rounded-2xl border outline-none font-bold" defaultValue={profile?.phone || ''} placeholder="Phone Number" id="reg-phone" />
+              <textarea className="w-full p-4 bg-gray-50 rounded-2xl border outline-none font-bold" defaultValue={profile?.address || ''} placeholder="Delivery Address" id="reg-address" rows={3} />
+              <button onClick={() => {
+                const p = { fullName: document.getElementById('reg-name').value, phone: document.getElementById('reg-phone').value, address: document.getElementById('reg-address').value };
+                if (p.fullName && p.phone && p.address) { setProfile(p); localStorage.setItem('ramdev_profile_v15', JSON.stringify(p)); setView('home'); }
+              }} className="w-full py-5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl">Save & Shop</button>
             </div>
-            <button onClick={() => setView('admin_login')} className="mt-16 text-gray-300 text-[10px] font-black uppercase tracking-widest border-b border-gray-100 pb-1">STAFF ACCESS</button>
           </div>
         );
 
-        if (view === 'catalog') return (
+        const homeContent = appData.settings.homeContent;
+
+        return (
           <div className="min-h-screen">
-            <header className="fixed top-0 left-0 right-0 max-w-md mx-auto z-50 bg-white/95 backdrop-blur-sm shadow-sm px-4 py-3 flex items-center justify-between border-b border-orange-50">
-              <div className="flex items-center gap-3 cursor-pointer active:scale-95 transition-transform" onClick={() => setView('onboarding')}>
-                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg"><i className="fas fa-user text-sm"></i></div>
+            {/* Header */}
+            <header className="fixed top-0 left-0 right-0 max-w-md mx-auto z-50 bg-white/95 backdrop-blur-sm border-b px-4 py-3 flex items-center justify-between">
+              <div onClick={() => setView('onboarding')} className="flex items-center gap-3 cursor-pointer">
+                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold shadow-lg">R</div>
                 <div className="text-left leading-none"><h1 className="text-base font-black text-gray-900 tracking-tighter uppercase">{appData.settings.appName}</h1><p className="text-[10px] text-primary font-black uppercase mt-1">HI, {profile?.fullName?.split(' ')[0]}</p></div>
               </div>
-              <div className="flex gap-1 items-center">
-                <button onClick={() => setView('orders')} className="w-10 h-10 flex items-center justify-center text-gray-400 active:scale-90"><i className="fas fa-history text-lg"></i></button>
-                <button onClick={() => setView('cart')} className="relative w-10 h-10 flex items-center justify-center text-gray-700 active:scale-90">{cart.length > 0 && <span className="absolute -top-0.5 -right-0.5 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-white z-10">{cart.length}</span>}<i className="fas fa-shopping-basket text-xl"></i></button>
-              </div>
-            </header>
-            <main className="pt-20 pb-40 px-4 fade-in">
-              <nav className="flex gap-2 mb-8 overflow-x-auto no-scrollbar py-2">
-                {appData.categories.map((cat) => (
-                  <button key={cat} onClick={() => setCategory(cat)} className={`px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all flex-shrink-0 shadow-sm ${category === cat ? 'bg-primary text-white' : 'bg-white text-orange-900 border border-orange-50'}`}>{cat}</button>
-                ))}
-              </nav>
-              <div className="grid grid-cols-2 gap-4">
-                {appData.products.filter((p) => p.category === category).map((p) => {
-                  const qty = getItemQty(p.id);
-                  return (
-                    <div key={p.id} className="bg-white rounded-[28px] overflow-hidden shadow-soft border border-orange-50 flex flex-col h-full text-left">
-                      <div className="h-40 bg-gray-100 relative group overflow-hidden">
-                        <img src={p.image} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onError={(e) => e.target.src='https://via.placeholder.com/300?text=Sweets'} />
-                        <div className="absolute bottom-3 right-3">
-                          {qty === 0 ? (
-                            <button onClick={() => updateCart(p, 1)} className="px-6 py-2 bg-white text-primary font-black text-[11px] rounded-xl border border-orange-100 shadow-xl uppercase tracking-widest">ADD</button>
-                          ) : (
-                            <div className="flex items-center bg-white rounded-xl border border-orange-100 shadow-xl overflow-hidden">
-                              <button onClick={() => updateCart(p, -1)} className="px-3 py-2 text-primary"><i className="fas fa-minus text-[9px]"></i></button>
-                              <span className="px-2 text-xs font-black text-orange-900">{qty}</span>
-                              <button onClick={() => updateCart(p, 1)} className="px-3 py-2 text-primary"><i className="fas fa-plus text-[9px]"></i></button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="p-4 flex-1 flex flex-col">
-                        <h3 className="text-[14px] font-black text-gray-900 mb-1 leading-tight tracking-tight">{p.name}</h3>
-                        <p className="text-[11px] text-gray-400 mb-4 flex-1 line-clamp-2 leading-tight font-medium">{p.description}</p>
-                        <div className="mt-auto flex justify-between items-center"><span className="text-[16px] font-black text-primary tracking-tighter">₹{p.price}</span><span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{p.weight}</span></div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </main>
-            {cart.length > 0 && (
-              <div className="fixed bottom-6 left-4 right-4 max-w-md mx-auto animate-slideUp">
-                <button onClick={() => setView('cart')} className="w-full bg-primary text-white font-black py-5 rounded-[24px] shadow-xl flex justify-between px-8 items-center active:translate-y-0.5 transition-all uppercase tracking-widest text-xs">
-                  <span>{cart.length} Items</span>
-                  <span>Cart • ₹{totalWithFees} <i className="fas fa-arrow-right ml-2"></i></span>
+              <div className="flex gap-2">
+                <button onClick={() => setView('orders')} className="w-10 h-10 flex items-center justify-center text-gray-400"><i className="fas fa-history text-lg"></i></button>
+                <button onClick={() => setView('cart')} className="relative w-10 h-10 flex items-center justify-center text-gray-700">
+                  {cart.length > 0 && <span className="absolute top-0 right-0 bg-red-600 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">{cart.length}</span>}
+                  <i className="fas fa-shopping-basket text-xl"></i>
                 </button>
               </div>
-            )}
-          </div>
-        );
+            </header>
 
-        if (view === 'cart') return (
-          <div className="min-h-screen bg-white p-4 pt-16 text-left fade-in">
-            <div className="flex gap-4 mb-8"><button onClick={() => setView('catalog')} className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-transform"><i className="fas fa-arrow-left"></i></button><h2 className="text-2xl font-black uppercase tracking-tighter text-gray-900 leading-none">YOUR CART</h2></div>
-            <div className="space-y-4 mb-8">
-              {cart.map(item => (
-                <div key={item.id} className="flex gap-5 p-5 bg-orange-50/20 rounded-[32px] border border-orange-100/30">
-                  <img src={item.image} className="w-20 h-20 object-cover rounded-2xl" onError={(e)=>e.target.src='https://via.placeholder.com/150'} />
-                  <div className="flex-1">
-                    <h4 className="font-black text-gray-900 text-sm mb-1 leading-tight">{item.name}</h4>
-                    <p className="text-primary font-black text-base tracking-tighter">₹{item.price * item.quantity}</p>
-                    <div className="flex items-center gap-4 mt-3">
-                      <button onClick={() => updateCart(item, -1)} className="w-8 h-8 bg-white rounded-xl border border-orange-100 flex items-center justify-center text-[8px]"><i className="fas fa-minus"></i></button>
-                      <span className="font-black text-gray-900">{item.quantity}</span>
-                      <button onClick={() => updateCart(item, 1)} className="w-8 h-8 bg-white rounded-xl border border-orange-100 flex items-center justify-center text-[8px]"><i className="fas fa-plus"></i></button>
+            {/* Content Views */}
+            <main className="pt-20 pb-40 px-4 fade-in max-w-md mx-auto">
+              {view === 'home' && (
+                <div className="space-y-8 fade-in">
+                  {/* Offer Banner */}
+                  {homeContent.banner.show && (
+                    <div className="relative w-full h-48 rounded-[32px] overflow-hidden shadow-xl bg-gradient-to-br from-orange-500 to-orange-700">
+                      <img src={homeContent.banner.image} className="w-full h-full object-cover mix-blend-overlay opacity-60" />
+                      <div className="absolute inset-0 p-8 flex flex-col justify-center items-start text-white">
+                        <span className="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-3">{homeContent.banner.subtitle}</span>
+                        <h2 className="text-3xl font-black tracking-tighter uppercase leading-none mb-2 whitespace-pre-line">{homeContent.banner.title}</h2>
+                        <p className="text-[10px] font-bold uppercase opacity-80 tracking-widest">{homeContent.banner.footer}</p>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="bg-gray-50 p-8 rounded-[40px] space-y-3 mb-12 border border-orange-50 shadow-inner">
-              <div className="flex justify-between text-xs font-bold text-gray-500 uppercase"><span>Subtotal</span><span className="text-gray-900">₹{cartTotal}</span></div>
-              <div className="flex justify-between text-xs font-bold text-gray-500 uppercase"><span>Platform Fee</span><span className="text-gray-900">₹{appData.settings.platformFee}</span></div>
-              <div className="flex justify-between text-xs font-bold text-gray-500 uppercase"><span>Delivery Fee</span><span className="text-gray-900">{deliveryFee > 0 ? `₹${deliveryFee}` : 'FREE'}</span></div>
-              <div className="border-t border-gray-200 pt-4 flex justify-between items-center mt-2">
-                  <span className="font-black text-gray-900 uppercase text-xs tracking-widest">Total Amount</span>
-                  <span className="text-2xl font-black text-primary">₹{totalWithFees}</span>
-              </div>
-            </div>
-            <button onClick={() => setView('checkout')} className="w-full py-5 bg-primary text-white rounded-[24px] font-black shadow-xl uppercase tracking-widest text-sm">Proceed to Payment</button>
-          </div>
-        );
+                  )}
 
-        if (view === 'checkout') return (
-          <div className="min-h-screen bg-white p-4 pt-16 text-left fade-in">
-            <div className="flex gap-4 mb-8"><button onClick={() => setView('cart')} className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-transform"><i className="fas fa-arrow-left"></i></button><h2 className="text-2xl font-black uppercase tracking-tighter text-gray-900 leading-none">Confirmation</h2></div>
-            <div className="space-y-10 pb-40">
-              <div>
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4 ml-2">Delivery Option</label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button onClick={() => setDeliveryMethod('home')} className={`p-6 rounded-[28px] border-2 flex flex-col items-center gap-3 ${deliveryMethod === 'home' ? 'border-primary bg-orange-50 text-orange-900' : 'border-gray-50 bg-gray-50 text-gray-400'}`}><i className="fas fa-truck text-2xl"></i><span className="font-black text-[10px] uppercase tracking-widest">Home</span></button>
-                  <button onClick={() => setDeliveryMethod('pickup')} className={`p-6 rounded-[28px] border-2 flex flex-col items-center gap-3 ${deliveryMethod === 'pickup' ? 'border-primary bg-orange-50 text-orange-900' : 'border-gray-50 bg-gray-50 text-gray-400'}`}><i className="fas fa-store text-2xl"></i><span className="font-black text-[10px] uppercase tracking-widest">Store</span></button>
-                </div>
-              </div>
-              <div>
-                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4 ml-2">Payment</label>
-                <div className="space-y-4">
-                  <button onClick={() => setPaymentMethod('cod')} className={`w-full p-6 rounded-[28px] border-2 flex items-center gap-5 ${paymentMethod === 'cod' ? 'border-primary bg-orange-50 text-orange-900' : 'border-gray-50 bg-gray-50 text-gray-400'}`}><i className="fas fa-money-bill-wave text-2xl"></i><span className="font-black text-xs uppercase tracking-widest">Cash on Delivery</span></button>
-                  <button onClick={() => setPaymentMethod('upi')} className={`w-full p-6 rounded-[28px] border-2 flex items-center gap-5 ${paymentMethod === 'upi' ? 'border-primary bg-orange-50 text-orange-900' : 'border-gray-50 bg-gray-50 text-gray-400'}`}><i className="fas fa-qrcode text-2xl"></i><span className="font-black text-xs uppercase tracking-widest">UPI QR</span></button>
-                </div>
-              </div>
-              {paymentMethod === 'upi' && (
-                <div className="bg-white p-8 rounded-[40px] border-2 border-dashed border-orange-200 text-center">
-                   <div className="bg-red-50 p-4 rounded-2xl mb-6 border border-red-100 animate-pulse">
-                      <p className="text-[11px] font-black text-red-600 uppercase leading-tight">
-                        <i className="fas fa-camera mr-2"></i>
-                        Send screenshot of payment, otherwise order will not be accepted
+                  {/* Daily Quote */}
+                  {homeContent.quote.show && (
+                    <div className="bg-white p-8 rounded-[40px] shadow-soft border border-orange-50 text-center italic">
+                      <i className="fas fa-quote-left text-orange-200 text-4xl block mb-4"></i>
+                      <p className="text-lg font-medium text-gray-800 tracking-tight leading-relaxed">
+                        {homeContent.quote.text}
                       </p>
-                   </div>
-                   <img src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=${appData.settings.upiId}%26pn=${encodeURIComponent(appData.settings.appName)}%26am=${totalWithFees}%26cu=INR`} className="mx-auto w-48 h-48 rounded-2xl shadow-2xl mb-6" />
-                   <p className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em]">Scan to pay ₹{totalWithFees}</p>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-primary mt-6 block">— {homeContent.quote.author}</span>
+                    </div>
+                  )}
+
+                  {/* Owner's Note */}
+                  {homeContent.note.show && (
+                    <div className="bg-orange-50/50 p-8 rounded-[40px] border border-orange-100">
+                      <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4">{homeContent.note.title}</h3>
+                      <p className="text-sm text-gray-600 leading-relaxed font-medium mb-6">
+                        {homeContent.note.text}
+                      </p>
+                      <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary shadow-sm"><i className="fas fa-signature"></i></div>
+                         <div>
+                           <p className="text-xs font-black text-gray-900 uppercase">{homeContent.note.ownerName}</p>
+                           <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">{homeContent.note.ownerTitle}</p>
+                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <button onClick={() => setView('catalog')} className="w-full py-5 bg-primary text-white rounded-[24px] font-black shadow-xl uppercase tracking-widest text-sm active:scale-95 transition-all">Explore Full Menu</button>
                 </div>
               )}
-            </div>
-            <div className="fixed bottom-6 left-4 right-4 max-w-md mx-auto">
-               <button onClick={handleOrderConfirm} className="w-full bg-primary text-white font-black py-5 rounded-[24px] shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all text-sm uppercase tracking-[0.2em]">PLACE ORDER <i className="fab fa-whatsapp text-2xl"></i></button>
-            </div>
-          </div>
-        );
 
-        if (view === 'orders') return (
-          <div className="min-h-screen bg-white p-4 pt-16 text-left fade-in">
-            <div className="flex gap-4 mb-8">
-              <button onClick={() => setView('catalog')} className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center shadow-sm"><i className="fas fa-arrow-left"></i></button>
-              <h2 className="text-2xl font-black uppercase tracking-tighter text-gray-900 leading-none">MY ORDERS</h2>
-            </div>
-            
-            {orders.length === 0 ? (
-              <div className="py-20 text-center">
-                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300 text-2xl"><i className="fas fa-receipt"></i></div>
-                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tighter mb-2">No orders yet</h3>
-                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-8">Your shopping history will appear here</p>
-                <button onClick={() => setView('catalog')} className="px-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg">Start Shopping</button>
-              </div>
-            ) : (
-              <div className="space-y-6 pb-20">
-                {orders.map(order => (
-                  <div key={order.id} className="bg-white rounded-[32px] border border-orange-50 shadow-soft p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest block mb-1">#{order.id.slice(-6).toUpperCase()}</span>
-                        <h4 className="text-xs font-bold text-gray-900">{new Date(order.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</h4>
+              {view === 'catalog' && (
+                <>
+                  <nav className="flex gap-2 mb-8 overflow-x-auto no-scrollbar py-2">
+                    {appData.categories.map(cat => (
+                      <button key={cat} onClick={() => setCategory(cat)} className={`px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest transition-all flex-shrink-0 shadow-sm ${category === cat ? 'bg-primary text-white' : 'bg-white text-orange-900 border'}`}>{cat}</button>
+                    ))}
+                  </nav>
+                  <div className="grid grid-cols-2 gap-4">
+                    {appData.products.filter(p => p.category === category).map(p => {
+                      const qty = getItemQty(p.id);
+                      return (
+                        <div key={p.id} className="bg-white rounded-[28px] overflow-hidden shadow-soft border flex flex-col h-full text-left">
+                          <div className="h-40 bg-gray-100 relative overflow-hidden group">
+                            <img src={p.image} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                            <div className="absolute bottom-3 right-3">
+                              {qty === 0 ? (
+                                <button onClick={() => updateCart(p, 1)} className="px-5 py-2 bg-white text-primary font-black text-[10px] rounded-xl shadow-xl border">ADD</button>
+                              ) : (
+                                <div className="flex items-center bg-white rounded-xl border shadow-xl overflow-hidden">
+                                  <button onClick={() => updateCart(p, -1)} className="px-3 py-2 text-primary"><i className="fas fa-minus text-[8px]"></i></button>
+                                  <span className="px-2 text-xs font-black text-orange-900">{qty}</span>
+                                  <button onClick={() => updateCart(p, 1)} className="px-3 py-2 text-primary"><i className="fas fa-plus text-[8px]"></i></button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="p-4 flex-1 flex flex-col">
+                            <h3 className="text-[13px] font-black text-gray-900 mb-1 leading-tight tracking-tight">{p.name}</h3>
+                            <p className="text-[10px] text-gray-400 mb-4 flex-1 line-clamp-2 leading-tight font-medium">{p.description}</p>
+                            <div className="mt-auto flex justify-between items-center"><span className="text-base font-black text-primary tracking-tighter">₹{p.price}</span><span className="text-[9px] font-black text-gray-300 uppercase tracking-widest">{p.weight}</span></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {view === 'cart' && (
+                <div className="fade-in">
+                  <h2 className="text-2xl font-black uppercase mb-8 tracking-tighter">YOUR CART</h2>
+                  <div className="space-y-4 mb-8">
+                    {cart.map(item => (
+                      <div key={item.id} className="flex gap-4 p-4 bg-orange-50/20 rounded-[32px] border">
+                        <img src={item.image} className="w-20 h-20 object-cover rounded-2xl" />
+                        <div className="flex-1">
+                          <h4 className="font-black text-gray-900 text-sm mb-1">{item.name}</h4>
+                          <p className="text-primary font-black text-lg">₹{item.price * item.quantity}</p>
+                          <div className="flex items-center gap-4 mt-2">
+                            <button onClick={() => updateCart(item, -1)} className="w-8 h-8 bg-white rounded-xl border flex items-center justify-center text-xs"><i className="fas fa-minus"></i></button>
+                            <span className="font-black text-gray-900">{item.quantity}</span>
+                            <button onClick={() => updateCart(item, 1)} className="w-8 h-8 bg-white rounded-xl border flex items-center justify-center text-xs"><i className="fas fa-plus"></i></button>
+                          </div>
+                        </div>
                       </div>
-                      <span className="px-3 py-1 bg-green-50 text-green-600 text-[9px] font-black uppercase tracking-widest rounded-full">Completed</span>
+                    ))}
+                  </div>
+                  <div className="bg-gray-50 p-8 rounded-[40px] space-y-3 mb-12 border">
+                    <div className="flex justify-between text-xs font-bold text-gray-500 uppercase"><span>Subtotal</span><span className="text-gray-900">₹{cartTotal}</span></div>
+                    <div className="flex justify-between text-xs font-bold text-gray-500 uppercase"><span>Fees</span><span className="text-gray-900">₹{appData.settings.platformFee + deliveryFee}</span></div>
+                    <div className="border-t pt-4 flex justify-between items-center mt-2">
+                      <span className="font-black text-gray-900 uppercase text-xs">Total Amount</span>
+                      <span className="text-2xl font-black text-primary">₹{totalWithFees}</span>
                     </div>
-                    
-                    <div className="border-t border-b border-gray-50 py-4 mb-4">
-                      {order.cart.map((item, idx) => (
-                        <div key={idx} className="flex justify-between text-[11px] mb-1">
-                          <span className="text-gray-500 font-bold">{item.name} x{item.quantity}</span>
-                          <span className="text-gray-900 font-black">₹{item.price * item.quantity}</span>
+                  </div>
+                  <button onClick={() => setView('checkout')} className="w-full py-5 bg-primary text-white rounded-[24px] font-black shadow-xl uppercase tracking-widest text-sm">Proceed</button>
+                </div>
+              )}
+
+              {view === 'checkout' && (
+                <div className="fade-in">
+                  <h2 className="text-2xl font-black uppercase mb-8 tracking-tighter">Confirmation</h2>
+                  <div className="space-y-10">
+                    <div>
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4 ml-2">Delivery Option</label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button onClick={() => setDeliveryMethod('home')} className={`p-6 rounded-[28px] border-2 flex flex-col items-center gap-3 ${deliveryMethod === 'home' ? 'border-primary bg-orange-50 text-orange-900' : 'border-gray-50 bg-gray-50 text-gray-400'}`}><i className="fas fa-truck text-2xl"></i><span className="font-black text-[10px] uppercase tracking-widest">Home</span></button>
+                        <button onClick={() => setDeliveryMethod('pickup')} className={`p-6 rounded-[28px] border-2 flex flex-col items-center gap-3 ${deliveryMethod === 'pickup' ? 'border-primary bg-orange-50 text-orange-900' : 'border-gray-50 bg-gray-50 text-gray-400'}`}><i className="fas fa-store text-2xl"></i><span className="font-black text-[10px] uppercase tracking-widest">Store</span></button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4 ml-2">Payment</label>
+                      <div className="space-y-4">
+                        <button onClick={() => setPaymentMethod('cod')} className={`w-full p-6 rounded-[28px] border-2 flex items-center gap-5 ${paymentMethod === 'cod' ? 'border-primary bg-orange-50 text-orange-900' : 'border-gray-50 bg-gray-50 text-gray-400'}`}><i className="fas fa-money-bill-wave text-2xl"></i><span className="font-black text-xs uppercase tracking-widest">Cash on Delivery</span></button>
+                        <button onClick={() => setPaymentMethod('upi')} className={`w-full p-6 rounded-[28px] border-2 flex items-center gap-5 ${paymentMethod === 'upi' ? 'border-primary bg-orange-50 text-orange-900' : 'border-gray-50 bg-gray-50 text-gray-400'}`}><i className="fas fa-qrcode text-2xl"></i><span className="font-black text-xs uppercase tracking-widest">UPI QR</span></button>
+                      </div>
+                    </div>
+                    {paymentMethod === 'upi' && (
+                      <div className="bg-white p-8 rounded-[40px] border-2 border-dashed border-orange-200 text-center">
+                         <div className="bg-red-50 p-4 rounded-2xl mb-6 border border-red-100 animate-pulse"><p className="text-[11px] font-black text-red-600 uppercase leading-tight">Send screenshot after pay!</p></div>
+                         <img src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=${appData.settings.upiId}%26pn=${encodeURIComponent(appData.settings.appName)}%26am=${totalWithFees}%26cu=INR`} className="mx-auto w-48 h-48 rounded-2xl shadow-xl mb-4" />
+                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total: ₹{totalWithFees}</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-12">
+                     <button onClick={handleOrderConfirm} className="w-full bg-primary text-white font-black py-5 rounded-[24px] shadow-xl flex items-center justify-center gap-3 uppercase tracking-widest text-sm">PLACE ORDER <i className="fab fa-whatsapp text-2xl"></i></button>
+                  </div>
+                </div>
+              )}
+
+              {view === 'orders' && (
+                <div className="fade-in">
+                  <h2 className="text-2xl font-black uppercase mb-8 tracking-tighter">MY ORDERS</h2>
+                  {orders.length === 0 ? <div className="py-20 text-center text-gray-300 font-bold uppercase text-xs tracking-widest">No orders yet</div> : (
+                    <div className="space-y-6">
+                      {orders.map(order => (
+                        <div key={order.id} className="bg-white rounded-[32px] border shadow-soft p-6 flex justify-between items-center">
+                          <div><span className="text-[10px] font-black text-orange-600 uppercase tracking-widest block mb-1">#{order.id.slice(-6).toUpperCase()}</span><h4 className="text-xs font-bold text-gray-900">{new Date(order.date).toLocaleDateString()}</h4><span className="text-xl font-black text-primary">₹{order.totalWithFees}</span></div>
+                          <button onClick={() => generateInvoicePDF(order, appData.settings.appName)} className="w-12 h-12 bg-orange-50 text-primary rounded-2xl flex items-center justify-center shadow-sm"><i className="fas fa-file-invoice text-lg"></i></button>
                         </div>
                       ))}
                     </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Grand Total</span>
-                        <span className="text-xl font-black text-primary tracking-tighter">₹{order.totalWithFees}</span>
-                      </div>
-                      <button 
-                        onClick={() => generateInvoicePDF(order, appData.settings.appName)}
-                        className="w-12 h-12 bg-orange-50 text-primary rounded-2xl flex items-center justify-center shadow-sm active:scale-95 transition-all"
-                      >
-                        <i className="fas fa-file-invoice text-lg"></i>
-                      </button>
-                    </div>
+                  )}
+                </div>
+              )}
+            </main>
+
+            {/* Bottom Footer Navigation */}
+            <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-white border-t border-orange-50 px-6 py-4 flex justify-between items-center shadow-soft">
+              <button onClick={() => setView('catalog')} className={`flex flex-col items-center gap-1 ${view === 'catalog' ? 'text-primary' : 'text-gray-400'}`}>
+                <i className="fas fa-th-large text-xl"></i>
+                <span className="text-[9px] font-black uppercase tracking-widest">Menu</span>
+              </button>
+              <div onClick={() => setView('home')} className={`w-14 h-14 rounded-full -mt-10 flex items-center justify-center shadow-xl border-4 border-white cursor-pointer transition-transform hover:scale-110 active:scale-95 ${view === 'home' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'}`}>
+                <i className="fas fa-home text-xl"></i>
+              </div>
+              <button onClick={() => setShowAbout(true)} className={`flex flex-col items-center gap-1 ${showAbout ? 'text-primary' : 'text-gray-400'}`}>
+                <i className="fas fa-info-circle text-xl"></i>
+                <span className="text-[9px] font-black uppercase tracking-widest">About</span>
+              </button>
+            </footer>
+
+            {/* Sticky Floating View Cart */}
+            {cart.length > 0 && (view === 'catalog' || view === 'home') && (
+              <div className="fixed bottom-24 left-4 right-4 max-w-md mx-auto animate-slideUp">
+                <button onClick={() => setView('cart')} className="w-full bg-primary text-white font-black py-5 rounded-[24px] shadow-xl flex justify-between px-8 items-center uppercase tracking-widest text-xs">
+                  <span>{cart.length} Items</span>
+                  <span>View Cart • ₹{totalWithFees} <i className="fas fa-arrow-right ml-2"></i></span>
+                </button>
+              </div>
+            )}
+
+            {/* About Modal */}
+            {showAbout && (
+              <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-end justify-center">
+                <div className="bg-white w-full max-w-md rounded-t-[40px] p-8 animate-slideUp">
+                  <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8"></div>
+                  <div className="text-center mb-8">
+                    <div className="w-20 h-20 bg-orange-100 rounded-3xl mx-auto flex items-center justify-center text-primary text-3xl mb-4 shadow-inner"><i className="fas fa-shop"></i></div>
+                    <h2 className="text-2xl font-black text-gray-900 mb-1 tracking-tighter">{appData.settings.appName}</h2>
+                    <p className="text-orange-600 font-bold text-xs uppercase tracking-widest">Premium Sweets & Cakes</p>
                   </div>
-                ))}
+                  <div className="space-y-4 mb-10 text-center">
+                    <p className="text-sm text-gray-600">Premium quality traditional sweets made with pure ghee and lots of love.</p>
+                    <button onClick={() => { setShowAbout(false); setView('admin_login'); }} className="text-[10px] text-gray-300 font-black uppercase tracking-widest border-b border-gray-100 pb-1 hover:text-primary transition-colors">Staff Access Only</button>
+                  </div>
+                  <button onClick={() => setShowAbout(false)} className="w-full bg-primary text-white font-black py-4 rounded-2xl shadow-xl uppercase tracking-widest text-xs">Close</button>
+                </div>
               </div>
             )}
           </div>
         );
-
-        return null;
       };
 
-      createRoot(document.getElementById('root')).render(<App />);
+      const container = document.getElementById('root');
+      const root = createRoot(container);
+      root.render(<App />);
     </script>
   </body>
 </html>
