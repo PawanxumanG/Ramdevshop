@@ -1,66 +1,110 @@
-{
-  "categories": ["Sweets", "Cakes", "Snacks", "Drinks"],
-  "products": [
-    {
-      "id": "1",
-      "name": "Bastasha",
-      "description": "Traditional sugar drops, airy and sweet.",
-      "price": 50,
-      "weight": "250g",
-      "category": "Sweets",
-      "image": "batasha.jpg"
-    },
-    {
-      "id": "2",
-      "name": "Motichoor",
-      "description": "Tiny pearls of gram flour fried in pure ghee.",
-      "price": 50,
-      "weight": "250g",
-      "category": "Sweets",
-      "image": "motichoor.jpg"
-    },
-    {
-      "id": "3",
-      "name": "Ladoo",
-      "description": "Classic sweet balls made with high-quality ingredients.",
-      "price": 60,
-      "weight": "250g",
-      "category": "Sweets",
-      "image": "ladoo.jpg"
-    },
-    {
-      "id": "4",
-      "name": "Malai Barfi",
-      "description": "Rich, creamy milk fudge with a soft texture.",
-      "price": 100,
-      "weight": "250g",
-      "category": "Sweets",
-      "image": "malai_barfi.jpg"
-    },
-    {
-      "id": "10",
-      "name": "Milk Cake",
-      "description": "Gram flour and ghee based sweet with a porous texture.",
-      "price": 100,
-      "weight": "250g",
-      "category": "Sweets",
-      "image": "milk_cake.jpg"
-    },
-    {
-      "id": "11",
-      "name": "Black Forest",
-      "description": "Mast cake hai lelo",
-      "price": 600,
-      "weight": "1KG",
-      "category": "Cakes",
-      "image": "black_forest.jpg"
-    }
-  ],
-  "settings": {
-    "minOrder": 100,
-    "platformFee": 1,
-    "deliveryFee": 5,
-    "ownerWhatsApp": "918369258002",
-    "upiId": "paytmqr62rtez@ptys"
+[
+  {
+    "id": "1",
+    "name": "Bastasha",
+    "description": "Traditional sugar drops, airy and sweet.",
+    "price": 50,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "batasha.jpg"
+  },
+  {
+    "id": "2",
+    "name": "Motichoor",
+    "description": "Tiny pearls of gram flour fried in pure ghee.",
+    "price": 50,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "motichoor.jpg"
+  },
+  {
+    "id": "3",
+    "name": "Ladoo",
+    "description": "Classic sweet balls made with high-quality ingredients.",
+    "price": 60,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "ladoo.jpg"
+  },
+  {
+    "id": "4",
+    "name": "Malai Barfi",
+    "description": "Rich, creamy milk fudge with a soft texture.",
+    "price": 100,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "malai_barfi.jpg"
+  },
+  {
+    "id": "5",
+    "name": "Barfi",
+    "description": "Traditional milk-based fudge, simple and tasty.",
+    "price": 100,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "peda2.jpg"
+  },
+  {
+    "id": "6",
+    "name": "Kaju Katli",
+    "description": "Premium cashew nut fudge, smooth and indulgent.",
+    "price": 200,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "kajukatli.jpg"
+  },
+  {
+    "id": "7",
+    "name": "Yellow Peda",
+    "description": "Saffron flavored traditional milk sweets.",
+    "price": 100,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "yellow_peda.jpg"
+  },
+  {
+    "id": "8",
+    "name": "Peda",
+    "description": "Authentic round milk sweets with a rich flavor.",
+    "price": 100,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "peda.jpg"
+  },
+  {
+    "id": "9",
+    "name": "Milk Cake",
+    "description": "Gram flour and ghee based sweet with a porous texture.",
+    "price": 100,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "mysore_pak.jpg"
+  },
+  {
+    "id": "10",
+    "name": "Milk Cake Brown",
+    "description": "Gram flour and ghee based sweet with a porous texture.",
+    "price": 100,
+    "weight": "250g",
+    "category": "Sweets",
+    "image": "milk_cake.jpg"
+  },
+  {
+    "id": "11",
+    "name": "Thumbs Up",
+    "description": "Refreshing Thumbs Up cola beverage.",
+    "price": 100,
+    "weight": "2.25L",
+    "category": "Drinks",
+    "image": "thumbsup.jpg"
+  },
+  {
+    "id": "12",
+    "name": "Coke",
+    "description": "Classic Coca-Cola chilled beverage.",
+    "price": 100,
+    "weight": "2.25L",
+    "category": "Drinks",
+    "image": "coke.jpg"
   }
-}
+]
