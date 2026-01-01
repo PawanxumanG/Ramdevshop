@@ -89,6 +89,15 @@
       "category": "Sweets",
       "image": "barfi.jpg",
       "description": ""
+    },
+    {
+      "id": "1767290707710",
+      "name": "Milk Cake Brown",
+      "price": 100,
+      "weight": "250gm",
+      "category": "Sweets",
+      "image": "mysore_pak.jpg",
+      "description": ""
     }
   ],
   "categories": [
