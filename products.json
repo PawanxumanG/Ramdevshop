@@ -75,7 +75,7 @@
     },
     "homeContent": {
       "banner": {
-        "show": true,
+        "show": false,
         "title": "Buy 1KG Sweets\nGet A Coke FREE!",
         "subtitle": "Festival Special",
         "footer": "Valid on Bastasha & Motichoor",
