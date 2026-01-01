@@ -68,16 +68,16 @@
       .bg-secondary { background-color: var(--secondary) !important; }
     </style>
     <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@19.0.0",
-        "react-dom": "https://esm.sh/react-dom@19.0.0",
-        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client"
-      }
-    }
-    </script>
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
     <script>
-      // Fail-safe: Force hide loader after 6 seconds
       window.addEventListener('load', () => {
         setTimeout(() => {
           const loader = document.getElementById('loader');
@@ -130,36 +130,80 @@
       const generateInvoicePDF = (order, shopName) => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.setFontSize(22);
-        doc.setTextColor(234, 88, 12);
-        doc.text(shopName, 20, 20);
+        
+        // Header
+        doc.setFontSize(24);
+        doc.setTextColor(234, 88, 12); // Primary orange
+        doc.text(shopName.toUpperCase(), 20, 25);
+        
         doc.setFontSize(10);
         doc.setTextColor(100);
-        doc.text(`Invoice ID: #RD-${order.id.slice(-6).toUpperCase()}`, 20, 30);
-        doc.text(`Date: ${new Date(order.date).toLocaleString()}`, 20, 35);
+        doc.text(`INVOICE ID: #RD-${order.id.slice(-6).toUpperCase()}`, 20, 35);
+        doc.text(`DATE: ${new Date(order.date).toLocaleString()}`, 20, 40);
+        
+        // Customer Section
+        doc.setFillColor(249, 250, 251);
+        doc.rect(20, 50, 170, 30, 'F');
         doc.setFontSize(12);
         doc.setTextColor(0);
-        doc.text("Customer Details:", 20, 50);
+        doc.setFont("helvetica", "bold");
+        doc.text("CUSTOMER DETAILS", 25, 58);
+        
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(10);
-        doc.text(`Name: ${order.profile.fullName}`, 20, 56);
-        doc.text(`Phone: ${order.profile.phone}`, 20, 61);
-        doc.text(`Address: ${order.profile.address}`, 20, 66, { maxWidth: 100 });
-        const tableData = order.cart.map((item) => [item.name, `x${item.quantity}`, `Rs. ${item.price}`, `Rs. ${item.price * item.quantity}`]);
+        doc.text(`Name: ${order.profile.fullName}`, 25, 65);
+        doc.text(`Phone: ${order.profile.phone}`, 25, 70);
+        doc.text(`Address: ${order.profile.address}`, 25, 75, { maxWidth: 160 });
+        
+        // Table
+        const tableData = order.cart.map((item) => [
+          item.name, 
+          `x${item.quantity}`, 
+          `Rs. ${item.price}`, 
+          `Rs. ${item.price * item.quantity}`
+        ]);
+        
         doc.autoTable({
-          startY: 80,
+          startY: 90,
           head: [['Product', 'Qty', 'Unit Price', 'Total']],
           body: tableData,
           theme: 'striped',
-          headStyles: { fillColor: [234, 88, 12] },
+          headStyles: { fillColor: [234, 88, 12], textColor: [255, 255, 255], fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [255, 250, 240] },
+          styles: { fontSize: 9, cellPadding: 5 }
         });
-        const finalY = (doc.lastAutoTable.finalY || 80) + 10;
+        
+        const finalY = (doc.lastAutoTable.finalY || 90) + 15;
+        
+        // Totals
+        const summaryX = 140;
         doc.setFontSize(10);
-        doc.text(`Subtotal: Rs. ${order.cartTotal}`, 140, finalY);
-        doc.text(`Platform Fee: Rs. ${order.platformFee || 0}`, 140, finalY + 5);
-        doc.text(`Delivery Fee: Rs. ${order.deliveryFee || 0}`, 140, finalY + 10);
+        doc.setTextColor(100);
+        doc.text(`Subtotal:`, summaryX, finalY);
+        doc.text(`Rs. ${order.cartTotal}`, 185, finalY, { align: 'right' });
+        
+        doc.text(`Platform Fee:`, summaryX, finalY + 7);
+        doc.text(`Rs. ${order.platformFee || 0}`, 185, finalY + 7, { align: 'right' });
+        
+        doc.text(`Delivery Fee:`, summaryX, finalY + 14);
+        doc.text(`Rs. ${order.deliveryFee || 0}`, 185, finalY + 14, { align: 'right' });
+        
+        // Grand Total Line
+        doc.setDrawColor(234, 88, 12);
+        doc.setLineWidth(0.5);
+        doc.line(summaryX, finalY + 18, 190, finalY + 18);
+        
         doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
         doc.setTextColor(234, 88, 12);
-        doc.text(`Grand Total: Rs. ${order.totalWithFees}`, 140, finalY + 20);
+        doc.text(`GRAND TOTAL:`, summaryX, finalY + 28);
+        doc.text(`Rs. ${order.totalWithFees}`, 185, finalY + 28, { align: 'right' });
+        
+        // Footer
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text("Thank you for shopping with RamDev Shop!", 105, 280, { align: 'center' });
+        
         doc.save(`${shopName}_Invoice_${order.id.slice(-4)}.pdf`);
       };
 
@@ -199,7 +243,7 @@
         };
 
         return (
-          <div className="min-h-screen bg-white pb-40 fade-in p-4 pt-8 text-left">
+          <div className="min-h-screen bg-white pb-40 fade-in p-4 pt-8 text-left overflow-y-auto">
             <div className="flex items-center justify-between mb-8 px-2">
               <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">ADMIN PANEL</h1>
               <button onClick={onBack} className="w-10 h-10 bg-white rounded-full flex items-center justify-center border shadow-sm"><i className="fas fa-times text-gray-400"></i></button>
@@ -343,7 +387,7 @@
         useEffect(() => {
           const init = async () => {
             try {
-              const savedData = localStorage.getItem('ramdev_v8_data');
+              const savedData = localStorage.getItem('ramdev_v10_data');
               if (savedData) setAppData(JSON.parse(savedData));
 
               const res = await fetch('./products.json?v=' + Date.now());
@@ -363,13 +407,13 @@
             } catch (err) {
               console.error("Init Error:", err);
             } finally {
-              const storedProfile = localStorage.getItem('ramdev_profile_v8');
+              const storedProfile = localStorage.getItem('ramdev_profile_v10');
               if (storedProfile) { 
                   const parsedProfile = JSON.parse(storedProfile);
                   setProfile(parsedProfile); 
                   setView('catalog'); 
               }
-              const storedOrders = localStorage.getItem('ramdev_orders_v8');
+              const storedOrders = localStorage.getItem('ramdev_orders_v10');
               if (storedOrders) setOrders(JSON.parse(storedOrders));
               setIsLoading(false);
             }
@@ -378,7 +422,7 @@
         }, []);
 
         useEffect(() => {
-          if (!isLoading) localStorage.setItem('ramdev_v8_data', JSON.stringify(appData));
+          if (!isLoading) localStorage.setItem('ramdev_v10_data', JSON.stringify(appData));
         }, [appData, isLoading]);
 
         useEffect(() => {
@@ -417,13 +461,27 @@
         const totalWithFees = cartTotal + (appData.settings.platformFee || 0) + deliveryFee;
 
         const handleOrderConfirm = () => {
-          const newOrder = { id: Date.now().toString(), date: new Date().toISOString(), cart: [...cart], cartTotal, platformFee: appData.settings.platformFee, deliveryFee, totalWithFees, profile, deliveryMethod, paymentMethod };
+          const newOrder = { 
+            id: Date.now().toString(), 
+            date: new Date().toISOString(), 
+            cart: [...cart], 
+            cartTotal, 
+            platformFee: appData.settings.platformFee, 
+            deliveryFee, 
+            totalWithFees, 
+            profile, 
+            deliveryMethod, 
+            paymentMethod 
+          };
           const updatedOrders = [newOrder, ...orders];
           setOrders(updatedOrders);
-          localStorage.setItem('ramdev_orders_v8', JSON.stringify(updatedOrders));
+          localStorage.setItem('ramdev_orders_v10', JSON.stringify(updatedOrders));
+          
           const msg = `🛍️ *${appData.settings.appName.toUpperCase()} ORDER*\n👤 *Customer:* ${profile.fullName}\n📞 *Phone:* ${profile.phone}\n📍 *Address:* ${profile.address}\n\n🍰 *Items:*\n${cart.map(i => `• ${i.name} (x${i.quantity}) - ₹${i.price * i.quantity}`).join('\n')}\n\n🔥 *Grand Total: ₹${totalWithFees}*`;
           window.location.href = `https://api.whatsapp.com/send?phone=${appData.settings.ownerWhatsApp}&text=${encodeURIComponent(msg)}`;
-          setCart([]); setView('catalog');
+          
+          setCart([]); 
+          setView('orders');
         };
 
         if (isLoading) return null;
@@ -441,7 +499,7 @@
               <div className="flex flex-col gap-3">
                   <button onClick={() => {
                   const p = { fullName: (document.getElementById('reg-name')).value, phone: (document.getElementById('reg-phone')).value, address: (document.getElementById('reg-address')).value };
-                  if (p.fullName && p.phone && p.address) { setProfile(p); localStorage.setItem('ramdev_profile_v8', JSON.stringify(p)); setView('catalog'); }
+                  if (p.fullName && p.phone && p.address) { setProfile(p); localStorage.setItem('ramdev_profile_v10', JSON.stringify(p)); setView('catalog'); }
                   }} className="w-full py-5 bg-primary text-white rounded-2xl font-black shadow-xl tracking-widest text-sm uppercase">Save & Shop</button>
                   {profile && <button onClick={() => setView('catalog')} className="w-full py-4 bg-gray-50 text-gray-400 rounded-2xl font-black text-xs uppercase tracking-widest">Back to Menu</button>}
               </div>
@@ -457,7 +515,8 @@
                 <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg"><i className="fas fa-user text-sm"></i></div>
                 <div className="text-left leading-none"><h1 className="text-base font-black text-gray-900 tracking-tighter uppercase">{appData.settings.appName}</h1><p className="text-[10px] text-primary font-black uppercase mt-1">HI, {profile?.fullName?.split(' ')[0]}</p></div>
               </div>
-              <div className="flex gap-1">
+              <div className="flex gap-1 items-center">
+                <button onClick={() => setView('orders')} className="w-10 h-10 flex items-center justify-center text-gray-400 active:scale-90"><i className="fas fa-history text-lg"></i></button>
                 <button onClick={() => setView('cart')} className="relative w-10 h-10 flex items-center justify-center text-gray-700 active:scale-90">{cart.length > 0 && <span className="absolute -top-0.5 -right-0.5 bg-red-600 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border-2 border-white z-10">{cart.length}</span>}<i className="fas fa-shopping-basket text-xl"></i></button>
               </div>
             </header>
@@ -575,6 +634,61 @@
             </div>
           </div>
         );
+
+        if (view === 'orders') return (
+          <div className="min-h-screen bg-white p-4 pt-16 text-left fade-in">
+            <div className="flex gap-4 mb-8">
+              <button onClick={() => setView('catalog')} className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center shadow-sm"><i className="fas fa-arrow-left"></i></button>
+              <h2 className="text-2xl font-black uppercase tracking-tighter text-gray-900 leading-none">MY ORDERS</h2>
+            </div>
+            
+            {orders.length === 0 ? (
+              <div className="py-20 text-center">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-300 text-2xl"><i className="fas fa-receipt"></i></div>
+                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tighter mb-2">No orders yet</h3>
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-8">Your shopping history will appear here</p>
+                <button onClick={() => setView('catalog')} className="px-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg">Start Shopping</button>
+              </div>
+            ) : (
+              <div className="space-y-6 pb-20">
+                {orders.map(order => (
+                  <div key={order.id} className="bg-white rounded-[32px] border border-orange-50 shadow-soft p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest block mb-1">#{order.id.slice(-6).toUpperCase()}</span>
+                        <h4 className="text-xs font-bold text-gray-900">{new Date(order.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</h4>
+                      </div>
+                      <span className="px-3 py-1 bg-green-50 text-green-600 text-[9px] font-black uppercase tracking-widest rounded-full">Completed</span>
+                    </div>
+                    
+                    <div className="border-t border-b border-gray-50 py-4 mb-4">
+                      {order.cart.map((item, idx) => (
+                        <div key={idx} className="flex justify-between text-[11px] mb-1">
+                          <span className="text-gray-500 font-bold">{item.name} x{item.quantity}</span>
+                          <span className="text-gray-900 font-black">₹{item.price * item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Grand Total</span>
+                        <span className="text-xl font-black text-primary tracking-tighter">₹{order.totalWithFees}</span>
+                      </div>
+                      <button 
+                        onClick={() => generateInvoicePDF(order, appData.settings.appName)}
+                        className="w-12 h-12 bg-orange-50 text-primary rounded-2xl flex items-center justify-center shadow-sm active:scale-95 transition-all"
+                      >
+                        <i className="fas fa-file-invoice text-lg"></i>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
         return null;
       };
 

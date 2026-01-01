@@ -1,4 +1,5 @@
 {
+  "categories": ["Sweets", "Cakes", "Snacks", "Drinks"],
   "products": [
     {
       "id": "1",
@@ -55,22 +56,11 @@
       "image": "black_forest.jpg"
     }
   ],
-  "categories": [
-    "Sweets",
-    "Cakes",
-    "Drinks"
-  ],
   "settings": {
-    "appName": "Pawan Shop",
     "minOrder": 100,
     "platformFee": 1,
-    "deliveryFee": 10,
+    "deliveryFee": 5,
     "ownerWhatsApp": "918369258002",
-    "upiId": "paytmqr62rtez@ptys",
-    "theme": {
-      "primary": "#ea580c",
-      "secondary": "#9a3412",
-      "background": "#fffaf0"
-    }
+    "upiId": "paytmqr62rtez@ptys"
   }
 }
