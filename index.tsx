@@ -1,15 +1,29 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
 
-/** --- INITIAL DATA --- **/
+/** --- INITIAL DEFAULTS --- **/
 const INITIAL_PRODUCTS = [
-  { id: "1", name: "Bastasha", description: "Traditional sugar drops, airy and sweet.", price: 50, weight: "250g", category: "Sweets", image: "batasha.jpg" },
+  { id: "1", name: "Batasha", description: "Traditional sugar drops, airy and sweet.", price: 50, weight: "250g", category: "Sweets", image: "batasha.jpg" },
   { id: "2", name: "Motichoor", description: "Tiny pearls of gram flour fried in pure ghee.", price: 50, weight: "250g", category: "Sweets", image: "motichoor.jpg" },
   { id: "3", name: "Ladoo", description: "Classic sweet balls made with high-quality ingredients.", price: 60, weight: "250g", category: "Sweets", image: "ladoo.jpg" },
   { id: "4", name: "Malai Barfi", description: "Rich, creamy milk fudge with a soft texture.", price: 100, weight: "250g", category: "Sweets", image: "malai_barfi.jpg" },
   { id: "10", name: "Milk Cake", description: "Gram flour and ghee based sweet with a porous texture.", price: 100, weight: "250g", category: "Sweets", image: "milk_cake.jpg" },
   { id: "11", name: "Black Forest", description: "Mast cake hai lelo", price: 600, weight: "1KG", category: "Cakes", image: "black_forest.jpg" }
 ];
+
+const DEFAULT_SETTINGS = { 
+  appName: "RamDev Shop",
+  minOrder: 100, 
+  platformFee: 1, 
+  deliveryFee: 5, 
+  ownerWhatsApp: "918369258002", 
+  upiId: "paytmqr62rtez@ptys",
+  theme: {
+    primary: "#ea580c",
+    secondary: "#9a3412",
+    background: "#fffaf0"
+  }
+};
 
 const ADMIN_PASSWORD = "Pawan1645@";
 
@@ -212,19 +226,7 @@ const App = () => {
   const [appData, setAppData] = useState<any>({
     products: INITIAL_PRODUCTS,
     categories: ['Sweets', 'Cakes', 'Snacks', 'Drinks'],
-    settings: { 
-      appName: "RamDev Shop",
-      minOrder: 100, 
-      platformFee: 1, 
-      deliveryFee: 5, 
-      ownerWhatsApp: "918369258002", 
-      upiId: "paytmqr62rtez@ptys",
-      theme: {
-        primary: "#ea580c",
-        secondary: "#9a3412",
-        background: "#fffaf0"
-      }
-    }
+    settings: DEFAULT_SETTINGS
   });
   const [cart, setCart] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
@@ -237,17 +239,36 @@ const App = () => {
   useEffect(() => {
     const init = async () => {
       const savedData = localStorage.getItem('ramdev_app_data');
-      if (savedData) setAppData(JSON.parse(savedData));
+      let dataToSet = {
+        products: INITIAL_PRODUCTS,
+        categories: ['Sweets', 'Cakes', 'Snacks', 'Drinks'],
+        settings: { ...DEFAULT_SETTINGS }
+      };
+
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        dataToSet = {
+          ...dataToSet,
+          ...parsed,
+          settings: { ...DEFAULT_SETTINGS, ...parsed.settings, theme: { ...DEFAULT_SETTINGS.theme, ...(parsed.settings?.theme || {}) } }
+        };
+      }
 
       try {
-        const res = await fetch('./app_data.json?v=' + Date.now());
+        const res = await fetch('./products.json?v=' + Date.now());
         if (res.ok) {
           const remote = await res.json();
-          setAppData((prev: any) => ({ ...prev, ...remote }));
+          dataToSet = {
+            ...dataToSet,
+            ...remote,
+            settings: { ...dataToSet.settings, ...(remote.settings || {}), theme: { ...dataToSet.settings.theme, ...(remote.settings?.theme || {}) } }
+          };
           if (remote.categories?.length > 0) setCategory(remote.categories[0]);
         }
       } catch(e) {}
       
+      setAppData(dataToSet);
+
       const storedProfile = localStorage.getItem('ramdev_profile');
       if (storedProfile) { setProfile(JSON.parse(storedProfile)); setView('catalog'); }
       const storedOrders = localStorage.getItem('ramdev_orders');
@@ -258,19 +279,24 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (appData.products.length > 0) {
+    if (!isLoading && appData.products.length > 0) {
       localStorage.setItem('ramdev_app_data', JSON.stringify(appData));
     }
-  }, [appData]);
+  }, [appData, isLoading]);
 
-  // Inject Theme Variables
+  // Inject Theme Variables Safely
   useEffect(() => {
+    if (!appData.settings.theme) return;
     const root = document.documentElement;
-    root.style.setProperty('--primary', appData.settings.theme.primary);
-    root.style.setProperty('--secondary', appData.settings.theme.secondary);
-    root.style.setProperty('--app-bg', appData.settings.theme.background);
-    document.body.style.backgroundColor = appData.settings.theme.background;
-  }, [appData.settings.theme]);
+    root.style.setProperty('--primary', appData.settings.theme.primary || DEFAULT_SETTINGS.theme.primary);
+    root.style.setProperty('--secondary', appData.settings.theme.secondary || DEFAULT_SETTINGS.theme.secondary);
+    root.style.setProperty('--app-bg', appData.settings.theme.background || DEFAULT_SETTINGS.theme.background);
+    document.body.style.backgroundColor = appData.settings.theme.background || DEFAULT_SETTINGS.theme.background;
+    
+    // Update loader text to match app name
+    const loaderText = document.getElementById('loader-text');
+    if (loaderText) loaderText.textContent = appData.settings.appName;
+  }, [appData.settings.theme, appData.settings.appName]);
 
   useEffect(() => {
     const loader = document.getElementById('loader');
