@@ -62,6 +62,15 @@
       "category": "Drinks",
       "image": "thumbsup.jpg",
       "description": ""
+    },
+    {
+      "id": "1767290489514",
+      "name": "coke",
+      "price": 95,
+      "weight": "2.25L",
+      "category": "Drinks",
+      "image": "coke.jpg",
+      "description": ""
     }
   ],
   "categories": [
