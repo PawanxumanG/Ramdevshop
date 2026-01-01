@@ -1,1 +1,0 @@
-// Logic moved to index.html to fix GitHub Pages MIME type issues.

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { UserDetails, CartItem } from '../types';
 import { UPI_ID, SHOP_NAME } from '../constants';
@@ -163,6 +162,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ total, onSubmit, onCancel }
 
           {formData.paymentMethod === 'qr' && (
             <div className="bg-white p-6 rounded-3xl border border-dashed border-orange-200 text-center shadow-sm">
+              <div className="bg-red-50 p-4 rounded-2xl mb-6 border border-red-100 animate-pulse">
+                <p className="text-[11px] font-black text-red-600 uppercase leading-tight">
+                  <i className="fas fa-camera mr-2"></i>
+                  Send screenshot of payment, otherwise order will not be accepted
+                </p>
+              </div>
               <p className="text-[10px] font-black text-orange-900 mb-4 uppercase tracking-widest">Amount to Pay: ₹{total}</p>
               <img src={generateDynamicQR()} alt="Shop QR Code" className="mx-auto w-44 h-44 mb-4 rounded-xl border-4 border-white shadow-lg" />
               <div className="bg-orange-50/50 p-3 rounded-xl text-[10px] text-orange-800 font-bold uppercase tracking-tighter">
