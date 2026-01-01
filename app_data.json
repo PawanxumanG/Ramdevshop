@@ -94,7 +94,7 @@
       "id": "11",
       "name": "Thumbs Up",
       "description": "Refreshing Thumbs Up cola beverage.",
-      "price": 100,
+      "price": 95,
       "weight": "2.25L",
       "category": "Drinks",
       "image": "thumbsup.jpg"
@@ -103,7 +103,7 @@
       "id": "12",
       "name": "Coke",
       "description": "Classic Coca-Cola chilled beverage.",
-      "price": 100,
+      "price": 95,
       "weight": "2.25L",
       "category": "Drinks",
       "image": "coke.jpg"
