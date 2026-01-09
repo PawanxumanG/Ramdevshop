@@ -53,51 +53,6 @@
       "weight": "1KG",
       "category": "Cakes",
       "image": "black_forest.jpg"
-    },
-    {
-      "id": "1767628366987",
-      "name": "Barfi",
-      "price": 100,
-      "weight": "250g",
-      "category": "Sweets",
-      "image": "barfi.jpg",
-      "description": "Delicious sweet 😋"
-    },
-    {
-      "id": "1767628411850",
-      "name": "Kaju Katli",
-      "price": 200,
-      "weight": "250g",
-      "category": "Sweets",
-      "image": "kajukatli.jpg",
-      "description": "The most famous sweet"
-    },
-    {
-      "id": "1767628473021",
-      "name": "Peda",
-      "price": 100,
-      "weight": "250g",
-      "category": "Sweets",
-      "image": "peda.jpg",
-      "description": "Nice sweets 😊"
-    },
-    {
-      "id": "1767628546231",
-      "name": "Thumbs Up",
-      "price": 95,
-      "weight": "2.25L",
-      "category": "Drinks",
-      "image": "thumbsup.jpg",
-      "description": "Taste the thunder ⚡"
-    },
-    {
-      "id": "1767628570094",
-      "name": "Coke",
-      "price": 95,
-      "weight": "2.25L",
-      "category": "Drinks",
-      "image": "coke.jpg",
-      "description": ""
     }
   ],
   "categories": [
@@ -132,7 +87,7 @@
         "author": "RamDev Specials"
       },
       "note": {
-        "show": true,
+        "show": false,
         "title": "Note from Owner",
         "text": "\"At RamDev Shop, purity is our religion. Every batch of sweets is prepared using 100% pure desi ghee and handpicked ingredients, just the way it was done generations ago. We invite you to taste the tradition.\"",
         "ownerName": "Pawan Ponnam",
